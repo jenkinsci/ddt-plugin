@@ -1,4 +1,4 @@
-=== Starting testBuild(io.jenkins.plugins.ddt.HelloWorldBuilderTest)
+=== Starting testBuild(io.jenkins.plugins.ddt.QADDTTest)
    0.010 [id=76]	INFO	o.jvnet.hudson.test.JenkinsRule#createWebServer: Running on http://localhost:49914/jenkins/
    0.018 [id=82]	INFO	jenkins.InitReactorRunner$1#onAttained: Started initialization
    0.021 [id=92]	INFO	jenkins.InitReactorRunner$1#onAttained: Listed all plugins
@@ -18,7 +18,7 @@
    0.639 [id=76]	INFO	jenkins.model.Jenkins#_cleanUpPersistQueue: Persisting build queue
    0.640 [id=76]	INFO	jenkins.model.Jenkins#_cleanUpAwaitDisconnects: Waiting for node disconnection completion
    0.640 [id=76]	INFO	jenkins.model.Jenkins#cleanUp: Jenkins stopped
-=== Starting testConfigRoundtrip(io.jenkins.plugins.ddt.HelloWorldBuilderTest)
+=== Starting testConfigRoundtrip(io.jenkins.plugins.ddt.QADDTTest)
    0.013 [id=120]	INFO	o.jvnet.hudson.test.JenkinsRule#createWebServer: Running on http://localhost:49922/jenkins/
    0.021 [id=126]	INFO	jenkins.InitReactorRunner$1#onAttained: Started initialization
    0.022 [id=137]	INFO	jenkins.InitReactorRunner$1#onAttained: Listed all plugins
@@ -61,7 +61,7 @@
 WARN: The method class org.apache.commons.logging.impl.SLF4JLogFactory#release() was invoked.
 WARN: Please see http://www.slf4j.org/codes.html#release for an explanation.
   16.609 [id=120]	INFO	jenkins.model.Jenkins#cleanUp: Jenkins stopped
-=== Starting testConfigRoundtripFrench(io.jenkins.plugins.ddt.HelloWorldBuilderTest)
+=== Starting testConfigRoundtripFrench(io.jenkins.plugins.ddt.QADDTTest)
    0.010 [id=188]	INFO	o.jvnet.hudson.test.JenkinsRule#createWebServer: Running on http://localhost:49997/jenkins/
    0.018 [id=194]	INFO	jenkins.InitReactorRunner$1#onAttained: Started initialization
    0.020 [id=205]	INFO	jenkins.InitReactorRunner$1#onAttained: Listed all plugins
@@ -104,7 +104,7 @@ WARN: Please see http://www.slf4j.org/codes.html#release for an explanation.
 WARN: The method class org.apache.commons.logging.impl.SLF4JLogFactory#release() was invoked.
 WARN: Please see http://www.slf4j.org/codes.html#release for an explanation.
   14.539 [id=188]	INFO	jenkins.model.Jenkins#cleanUp: Jenkins stopped
-=== Starting testBuildFrench(io.jenkins.plugins.ddt.HelloWorldBuilderTest)
+=== Starting testBuildFrench(io.jenkins.plugins.ddt.QADDTTest)
    0.008 [id=248]	INFO	o.jvnet.hudson.test.JenkinsRule#createWebServer: Running on http://localhost:50065/jenkins/
    0.015 [id=254]	INFO	jenkins.InitReactorRunner$1#onAttained: Started initialization
    0.016 [id=265]	INFO	jenkins.InitReactorRunner$1#onAttained: Listed all plugins
@@ -124,7 +124,7 @@ WARN: Please see http://www.slf4j.org/codes.html#release for an explanation.
    0.554 [id=248]	INFO	jenkins.model.Jenkins#_cleanUpPersistQueue: Persisting build queue
    0.555 [id=248]	INFO	jenkins.model.Jenkins#_cleanUpAwaitDisconnects: Waiting for node disconnection completion
    0.555 [id=248]	INFO	jenkins.model.Jenkins#cleanUp: Jenkins stopped
-=== Starting testScriptedPipeline(io.jenkins.plugins.ddt.HelloWorldBuilderTest)
+=== Starting testScriptedPipeline(io.jenkins.plugins.ddt.QADDTTest)
    0.011 [id=292]	INFO	o.jvnet.hudson.test.JenkinsRule#createWebServer: Running on http://localhost:50073/jenkins/
    0.018 [id=298]	INFO	jenkins.InitReactorRunner$1#onAttained: Started initialization
    0.020 [id=308]	INFO	jenkins.InitReactorRunner$1#onAttained: Listed all plugins

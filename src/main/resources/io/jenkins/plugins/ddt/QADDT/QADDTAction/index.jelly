@@ -1,0 +1,10 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:l="/lib/layout">
+    <l:layout title="QA Data Driven Tests">
+        <l:main-panel>
+            <h1>
+                QA Data Driven Tests
+            </h1>
+        </l:main-panel>
+    </l:layout>
+</j:jelly>

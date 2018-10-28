@@ -64,22 +64,22 @@
     <property name="sun.cpu.isalist" value=""/>
   </properties>
   <testcase name="index.jelly" classname="org.jvnet.hudson.test.JellyTestSuiteBuilder$JellyCheck" time="0.034"/>
-  <testcase name="io/jenkins/plugins/ddt/HelloWorldBuilder/config.jelly" classname="org.jvnet.hudson.test.JellyTestSuiteBuilder$JellyCheck" time="0.153"/>
+  <testcase name="io/jenkins/plugins/ddt/QADDT/config.jelly" classname="org.jvnet.hudson.test.JellyTestSuiteBuilder$JellyCheck" time="0.153"/>
   <testcase name="testCliSanity" classname="org.jvnet.hudson.test.PluginAutomaticTestBuilder$OtherTests" time="0.008"/>
   <testcase name="testPluginActive" classname="org.jvnet.hudson.test.PluginAutomaticTestBuilder$OtherTests" time="0"/>
   <testcase name="org.jvnet.hudson.test.JellyTestSuiteBuilder$JellyTestSuite" classname="org.jvnet.hudson.test.junit.FailedTest" time="0"/>
-  <testcase name="io/jenkins/plugins/ddt/HelloWorldBuilder/config_sv.properties" classname="org.jvnet.hudson.test.PropertiesTestSuite$PropertiesTest" time="0.001"/>
+  <testcase name="io/jenkins/plugins/ddt/QADDT/config_sv.properties" classname="org.jvnet.hudson.test.PropertiesTestSuite$PropertiesTest" time="0.001"/>
   <testcase name="io/jenkins/plugins/ddt/Messages_fr.properties" classname="org.jvnet.hudson.test.PropertiesTestSuite$PropertiesTest" time="0"/>
   <testcase name="io/jenkins/plugins/ddt/Messages_sv.properties" classname="org.jvnet.hudson.test.PropertiesTestSuite$PropertiesTest" time="0.001"/>
-  <testcase name="io/jenkins/plugins/ddt/HelloWorldBuilder/config_fr.properties" classname="org.jvnet.hudson.test.PropertiesTestSuite$PropertiesTest" time="0"/>
+  <testcase name="io/jenkins/plugins/ddt/QADDT/config_fr.properties" classname="org.jvnet.hudson.test.PropertiesTestSuite$PropertiesTest" time="0"/>
   <testcase name="io/jenkins/plugins/ddt/Messages.properties" classname="org.jvnet.hudson.test.PropertiesTestSuite$PropertiesTest" time="0"/>
-  <testcase name="io/jenkins/plugins/ddt/HelloWorldBuilder/config_de.properties" classname="org.jvnet.hudson.test.PropertiesTestSuite$PropertiesTest" time="0.001"/>
-  <testcase name="io/jenkins/plugins/ddt/HelloWorldBuilder/config_tr.properties" classname="org.jvnet.hudson.test.PropertiesTestSuite$PropertiesTest" time="0"/>
+  <testcase name="io/jenkins/plugins/ddt/QADDT/config_de.properties" classname="org.jvnet.hudson.test.PropertiesTestSuite$PropertiesTest" time="0.001"/>
+  <testcase name="io/jenkins/plugins/ddt/QADDT/config_tr.properties" classname="org.jvnet.hudson.test.PropertiesTestSuite$PropertiesTest" time="0"/>
   <testcase name="io/jenkins/plugins/ddt/Messages_it.properties" classname="org.jvnet.hudson.test.PropertiesTestSuite$PropertiesTest" time="0"/>
   <testcase name="io/jenkins/plugins/ddt/Messages_es.properties" classname="org.jvnet.hudson.test.PropertiesTestSuite$PropertiesTest" time="0"/>
-  <testcase name="io/jenkins/plugins/ddt/HelloWorldBuilder/config_es.properties" classname="org.jvnet.hudson.test.PropertiesTestSuite$PropertiesTest" time="0"/>
-  <testcase name="io/jenkins/plugins/ddt/HelloWorldBuilder/config.properties" classname="org.jvnet.hudson.test.PropertiesTestSuite$PropertiesTest" time="0.001"/>
-  <testcase name="io/jenkins/plugins/ddt/HelloWorldBuilder/config_it.properties" classname="org.jvnet.hudson.test.PropertiesTestSuite$PropertiesTest" time="0"/>
+  <testcase name="io/jenkins/plugins/ddt/QADDT/config_es.properties" classname="org.jvnet.hudson.test.PropertiesTestSuite$PropertiesTest" time="0"/>
+  <testcase name="io/jenkins/plugins/ddt/QADDT/config.properties" classname="org.jvnet.hudson.test.PropertiesTestSuite$PropertiesTest" time="0.001"/>
+  <testcase name="io/jenkins/plugins/ddt/QADDT/config_it.properties" classname="org.jvnet.hudson.test.PropertiesTestSuite$PropertiesTest" time="0"/>
   <testcase name="io/jenkins/plugins/ddt/Messages_de.properties" classname="org.jvnet.hudson.test.PropertiesTestSuite$PropertiesTest" time="0"/>
   <testcase name="io/jenkins/plugins/ddt/Messages_tr.properties" classname="org.jvnet.hudson.test.PropertiesTestSuite$PropertiesTest" time="0.001"/>
 </testsuite>

@@ -1,2 +1,2 @@
 InjectedTest.class
-io/jenkins/plugins/ddt/HelloWorldBuilderTest.class
+io/jenkins/plugins/ddt/QADDTTest.class

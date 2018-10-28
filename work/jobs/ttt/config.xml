@@ -12,10 +12,10 @@
   <triggers/>
   <concurrentBuild>false</concurrentBuild>
   <builders>
-    <io.jenkins.plugins.ddt.HelloWorldBuilder plugin="ddt@1.0-SNAPSHOT">
-      <name></name>
-      <tags></tags>
-    </io.jenkins.plugins.ddt.HelloWorldBuilder>
+    <io.jenkins.plugins.ddt.QADDT plugin="ddt@1.0-SNAPSHOT">
+      <name>f6a2a5a3353e62c2ba7563362b179cd2f7efb92f</name>
+      <tags>aa,gggg</tags>
+    </io.jenkins.plugins.ddt.QADDT>
   </builders>
   <publishers/>
   <buildWrappers/>

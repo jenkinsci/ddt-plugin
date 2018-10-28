@@ -10,7 +10,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
 
-public class HelloWorldBuilderTest {
+public class QADDTTest {
 
     @Rule
     public JenkinsRule jenkins = new JenkinsRule();
@@ -20,20 +20,20 @@ public class HelloWorldBuilderTest {
     @Test
     public void testConfigRoundtrip() throws Exception {
         FreeStyleProject project = jenkins.createFreeStyleProject();
-        project.getBuildersList().add(new HelloWorldBuilder(name));
+        project.getBuildersList().add(new QADDT(name));
         project = jenkins.configRoundtrip(project);
-        jenkins.assertEqualDataBoundBeans(new HelloWorldBuilder(name), project.getBuildersList().get(0));
+        jenkins.assertEqualDataBoundBeans(new QADDT(name), project.getBuildersList().get(0));
     }
 
     @Test
     public void testConfigRoundtripFrench() throws Exception {
         FreeStyleProject project = jenkins.createFreeStyleProject();
-        HelloWorldBuilder builder = new HelloWorldBuilder(name);
+        QADDT builder = new QADDT(name);
         builder.setUseFrench(true);
         project.getBuildersList().add(builder);
         project = jenkins.configRoundtrip(project);
 
-        HelloWorldBuilder lhs = new HelloWorldBuilder(name);
+        QADDT lhs = new QADDT(name);
         lhs.setUseFrench(true);
         jenkins.assertEqualDataBoundBeans(lhs, project.getBuildersList().get(0));
     }
@@ -41,7 +41,7 @@ public class HelloWorldBuilderTest {
     @Test
     public void testBuild() throws Exception {
         FreeStyleProject project = jenkins.createFreeStyleProject();
-        HelloWorldBuilder builder = new HelloWorldBuilder(name);
+        QADDT builder = new QADDT(name);
         project.getBuildersList().add(builder);
 
         FreeStyleBuild build = jenkins.buildAndAssertSuccess(project);
@@ -52,7 +52,7 @@ public class HelloWorldBuilderTest {
     public void testBuildFrench() throws Exception {
 
         FreeStyleProject project = jenkins.createFreeStyleProject();
-        HelloWorldBuilder builder = new HelloWorldBuilder(name);
+        QADDT builder = new QADDT(name);
         builder.setUseFrench(true);
         project.getBuildersList().add(builder);
 
