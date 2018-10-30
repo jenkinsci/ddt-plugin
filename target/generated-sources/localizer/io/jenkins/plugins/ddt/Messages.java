@@ -94,6 +94,50 @@ public class Messages {
     }
 
     /**
+     * Key {@code QADDT.DescriptorImpl.warning.missingUser}: {@code Please
+     * set a username}.
+     * 
+     * @return
+     *     {@code Please set a username}
+     */
+    public static String QADDT_DescriptorImpl_warning_missingUser() {
+        return holder.format("QADDT.DescriptorImpl.warning.missingUser");
+    }
+
+    /**
+     * Key {@code QADDT.DescriptorImpl.warning.missingUser}: {@code Please
+     * set a username}.
+     * 
+     * @return
+     *     {@code Please set a username}
+     */
+    public static Localizable _QADDT_DescriptorImpl_warning_missingUser() {
+        return new Localizable(holder, "QADDT.DescriptorImpl.warning.missingUser");
+    }
+
+    /**
+     * Key {@code QADDT.DescriptorImpl.errors.wrongCredentials}: {@code Wrong
+     * credentials!}.
+     * 
+     * @return
+     *     {@code Wrong credentials!}
+     */
+    public static String QADDT_DescriptorImpl_errors_wrongCredentials() {
+        return holder.format("QADDT.DescriptorImpl.errors.wrongCredentials");
+    }
+
+    /**
+     * Key {@code QADDT.DescriptorImpl.errors.wrongCredentials}: {@code Wrong
+     * credentials!}.
+     * 
+     * @return
+     *     {@code Wrong credentials!}
+     */
+    public static Localizable _QADDT_DescriptorImpl_errors_wrongCredentials() {
+        return new Localizable(holder, "QADDT.DescriptorImpl.errors.wrongCredentials");
+    }
+
+    /**
      * Key {@code QADDT.DescriptorImpl.DisplayName}: {@code QA Data Driven
      * Test}.
      * 
@@ -113,6 +157,28 @@ public class Messages {
      */
     public static Localizable _QADDT_DescriptorImpl_DisplayName() {
         return new Localizable(holder, "QADDT.DescriptorImpl.DisplayName");
+    }
+
+    /**
+     * Key {@code QADDT.DescriptorImpl.warning.missingPass}: {@code Please
+     * set a password}.
+     * 
+     * @return
+     *     {@code Please set a password}
+     */
+    public static String QADDT_DescriptorImpl_warning_missingPass() {
+        return holder.format("QADDT.DescriptorImpl.warning.missingPass");
+    }
+
+    /**
+     * Key {@code QADDT.DescriptorImpl.warning.missingPass}: {@code Please
+     * set a password}.
+     * 
+     * @return
+     *     {@code Please set a password}
+     */
+    public static Localizable _QADDT_DescriptorImpl_warning_missingPass() {
+        return new Localizable(holder, "QADDT.DescriptorImpl.warning.missingPass");
     }
 
 }

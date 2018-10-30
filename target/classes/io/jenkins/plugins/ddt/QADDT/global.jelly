@@ -1,15 +1,13 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form">
-	<f:section title="${%Title}" name="qaddtCredentials">
+	<f:section title="${%Title}" name="credentials">
 		<f:entry title="${%Username}">
-			<f:textbox field="qaddtUser" />
+			<f:textbox field="user" />
 		</f:entry>
 		<f:entry title="${%Password}">
-			<f:password field="qaddtPass" />
+			<f:password field="pass" />
 		</f:entry>
-
-		<f:validateButton
-			title="${%Test Connection}" progress="${%Testing...}"
-			method="testConnection" with="qaddtUser,qaddtPass" />
+		<f:validateButton title="${%Test Connection}" progress="${%Testing...}"
+				method="testConnection" with="user,pass" />
 	</f:section>
 </j:jelly>

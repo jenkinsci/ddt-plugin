@@ -23,21 +23,14 @@ import org.jenkinsci.Symbol;
 import java.util.*;
 
 import hudson.model.Descriptor.FormException;
-import hudson.tools.ToolDescriptor;
-import hudson.tools.ToolInstallation;
-import hudson.tools.ToolProperty;
 import org.kohsuke.stapler.StaplerRequest;
 
 import net.sf.json.JSONObject;
-
 
 public class QADDT extends Builder implements SimpleBuildStep {
 	
 	private final String name;
 	private final String tags;
-	
-	private String qaddtUser;
-	private String qaddtPass;
 	
 	private static Map<String, String> saved_tests;
 	
@@ -63,14 +56,6 @@ public class QADDT extends Builder implements SimpleBuildStep {
 		return tags;
 	}
 	
-	public String getQaddtUser() {
-		return qaddtUser;
-	}
-
-	public String getQaddtPass() {
-		return qaddtPass;
-	}
-	
 	@Override
 	public void perform(Run<?, ?> run, FilePath workspace, Launcher launcher, TaskListener listener) throws InterruptedException, IOException {
 		listener.getLogger().println("Hello 22, " + name + " :: " + tags + "!");
@@ -79,6 +64,17 @@ public class QADDT extends Builder implements SimpleBuildStep {
 	@Symbol("greet")
 	@Extension
 	public static final class DescriptorImpl extends BuildStepDescriptor<Builder> {
+		
+		private String user;
+		private String pass;
+		
+		public String getUser() {
+			return user;
+		}
+		
+		public String getPass() {
+			return pass;
+		}
 		
 		public ListBoxModel doFillNameItems() {
 			List<Option> options = new ArrayList();
@@ -120,26 +116,47 @@ public class QADDT extends Builder implements SimpleBuildStep {
 			return FormValidation.ok();
 		}
 		
-		public FormValidation doTestConnection(@QueryParameter("qaddtUser") final String user,
-				@QueryParameter("qaddtPass") final String pass) throws IOException, ServletException {
-			
-			System.out.println(" >> qaddtUser: " + user);
-			System.out.println(" >> qaddtPass: " + pass);
+		public FormValidation doTestConnection(@QueryParameter("user") final String user,
+				@QueryParameter("pass") final String pass) throws IOException, ServletException {
 			
 			try {
 				if (user == null || user.length() == 0) {
-					return FormValidation.error(Messages.QADDT_DescriptorImpl_warnings_wrongSymbol());
+					return FormValidation.warning(Messages.QADDT_DescriptorImpl_warning_missingUser());
 				}
 				if (pass == null || pass.length() == 0) {
-					return FormValidation.error(Messages.QADDT_DescriptorImpl_warnings_wrongSymbol());
+					return FormValidation.warning(Messages.QADDT_DescriptorImpl_warning_missingPass());
 				}
 				
-				// TODO: Test connection
+				if (!QADDTAPI.login(user, pass)) {
+					return FormValidation.error(Messages.QADDT_DescriptorImpl_errors_wrongCredentials());
+				}
 				
 				return FormValidation.ok("Success");
 			} catch (Exception e) {
 				return FormValidation.error("Validation error : " + e.getMessage());
 			}
+		}
+
+		@Override
+		public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
+			req.bindParameters(this);
+			
+			formData = formData.getJSONObject("credentials");
+			String user = formData.getString("user");
+			String pass = formData.getString("pass");
+			
+			try {
+				doTestConnection(user, pass); // Otherwise it throws an error
+				
+				this.user = user;
+				this.pass = pass;
+				
+				save();
+			} catch(Exception e) {
+				return false;
+			}
+			
+			return super.configure(req, formData);
 		}
 		
 		@Override

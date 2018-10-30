@@ -1,8 +1,9 @@
-io/jenkins/plugins/ddt/QADDT.class
+io/jenkins/plugins/ddt/QADDTAPI.class
 io/jenkins/plugins/ddt/Messages.class
-io/jenkins/plugins/ddt/QADDT/DescriptorImpl/doTestConnection.stapler
-io/jenkins/plugins/ddt/QADDT/DescriptorImpl/doCheckTags.stapler
 io/jenkins/plugins/ddt/QADDT$DescriptorImpl.class
+io/jenkins/plugins/ddt/QADDT/DescriptorImpl/doTestConnection.stapler
+io/jenkins/plugins/ddt/QADDT.class
+io/jenkins/plugins/ddt/QADDT/DescriptorImpl/doCheckTags.stapler
 META-INF/annotations/org.kohsuke.accmod.Restricted
 io/jenkins/plugins/ddt/QADDTAction.class
 io/jenkins/plugins/ddt/QADDT/DescriptorImpl/doCheckName.stapler
