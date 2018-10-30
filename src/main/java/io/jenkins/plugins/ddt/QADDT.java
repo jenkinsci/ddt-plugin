@@ -59,9 +59,10 @@ public class QADDT extends Builder implements SimpleBuildStep {
 	@Override
 	public void perform(Run<?, ?> run, FilePath workspace, Launcher launcher, TaskListener listener) throws InterruptedException, IOException {
 		listener.getLogger().println("Hello 22, " + name + " :: " + tags + "!");
+		
+		// QADDTAPI.test(name, tags);
 	}
 	
-	@Symbol("greet")
 	@Extension
 	public static final class DescriptorImpl extends BuildStepDescriptor<Builder> {
 		
@@ -69,10 +70,18 @@ public class QADDT extends Builder implements SimpleBuildStep {
 		private String pass;
 		
 		public String getUser() {
+			if (QADDTAPI.getUsername() != null) {
+				user = QADDTAPI.getUsername();
+			}
+			
 			return user;
 		}
 		
 		public String getPass() {
+			if (QADDTAPI.getPassword() != null) {
+				pass = QADDTAPI.getPassword();
+			}
+			
 			return pass;
 		}
 		
@@ -146,14 +155,18 @@ public class QADDT extends Builder implements SimpleBuildStep {
 			String pass = formData.getString("pass");
 			
 			try {
-				doTestConnection(user, pass); // Otherwise it throws an error
+				FormValidation check = doTestConnection(user, pass); // Otherwise it throws an error
+				
+				if (check.renderHtml().indexOf("Success") == -1) {
+					throw new FormException(Messages.QADDT_DescriptorImpl_errors_wrongCredentials(), "credentials.user");
+				}
 				
 				this.user = user;
 				this.pass = pass;
 				
 				save();
 			} catch(Exception e) {
-				return false;
+				throw new FormException(Messages.QADDT_DescriptorImpl_errors_wrongCredentials(), "credentials.user");
 			}
 			
 			return super.configure(req, formData);
