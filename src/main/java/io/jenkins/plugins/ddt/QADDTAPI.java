@@ -17,6 +17,8 @@ import java.io.*;
 import java.util.*;
 import org.json.*;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 
 public class QADDTAPI {
 	// private static final String API_URL = "https://qa-api.doorzz.com/";
@@ -35,6 +37,14 @@ public class QADDTAPI {
 	
 	public static String getPassword() {
 		return password;
+	}
+	
+	public static String getUid() {
+		return uid;
+	}
+	
+	public static String getHash() {
+		return hash;
 	}
 	
 	public static boolean login(String user, String pass) {
@@ -111,7 +121,7 @@ public class QADDTAPI {
 				"\"tags\": \"" + tags + "\"" +
 			"}");
 		
-		JSONObject new_test_obj = new JSONObject(last_test);
+		JSONObject new_test_obj = new JSONObject(new_test);
 		
 		if (new_test_obj.getBoolean("error")) {
 			return null;
@@ -160,22 +170,23 @@ public class QADDTAPI {
 		return null;
 	}
 	
+	@SuppressFBWarnings(value = "DM_DEFAULT_ENCODING", justification = "This is in try-catch")
 	private static String _accamulate(HttpResponse response) {
 		try (BufferedReader br = new BufferedReader(new InputStreamReader((response.getEntity().getContent())))) {
 			// Read in all of the post results into a String.
-			String output = "";
 			Boolean keepGoing = true;
+			StringBuffer output = new StringBuffer();
 			while (keepGoing) {
 				String currentLine = br.readLine();
 				
 				if (currentLine == null) {
 					keepGoing = false;
 				} else {
-					output += currentLine;
+					output.append(currentLine);
 				}
 			}
 			
-			return output;
+			return output.toString();
 		} catch (Exception e) {
 			System.out.println("Exception while parsing response: " + e.getMessage());
 		}
@@ -183,6 +194,7 @@ public class QADDTAPI {
 		return null;
 	}
 	
+	@SuppressFBWarnings(value = "DM_DEFAULT_ENCODING", justification = "This is in try-catch and should return ASCII")
 	private static String _hash(String str) {
 		try {
 			MessageDigest digest = MessageDigest.getInstance("SHA-256");

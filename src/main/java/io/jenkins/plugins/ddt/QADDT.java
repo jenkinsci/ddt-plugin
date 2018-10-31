@@ -27,25 +27,19 @@ import org.kohsuke.stapler.StaplerRequest;
 
 import net.sf.json.JSONObject;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
+
 public class QADDT extends Builder implements SimpleBuildStep {
 	
 	private final String name;
-	private final String tags;
-	
-	private static Map<String, String> saved_tests;
-	
-	private static String outer_name;
+	private String tags;
 	
 	@DataBoundConstructor
+	@SuppressFBWarnings(value = "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD", justification = "I want to override it every time and the Descriptor is final")
 	public QADDT(String name, String tags) {
 		this.name = name;
-		this.outer_name = name;
 		this.tags = tags;
-		
-		// this.saved_tests = new HashMap<String,String>();
-		// this.saved_tests.put("9fc88d0f08dbd81c5ad3ee4524f800a18b1f5178", "Test #1");
-		// this.saved_tests.put("f6a2a5a3353e62c2ba7563362b179cd2f7efb92f", "Test #2");
-		// this.saved_tests.put("42c8f3198db0c9986b263e023cab7cc6556eabfc", "Test #13");
 	}
 	
 	public String getName() {
@@ -53,6 +47,14 @@ public class QADDT extends Builder implements SimpleBuildStep {
 	}
 	
 	public String getTags() {
+		// if (tags == null || tags.length() == 0) {
+		// 	QADDTest tmp_test = QADDTConfig.getTest(name);
+			
+		// 	if (tmp_test != null) {
+		// 		tags = tmp_test.getTags();
+		// 	}
+		// }
+		
 		return tags;
 	}
 	
@@ -66,39 +68,20 @@ public class QADDT extends Builder implements SimpleBuildStep {
 	@Extension
 	public static final class DescriptorImpl extends BuildStepDescriptor<Builder> {
 		
-		private String user;
-		private String pass;
-		
-		public String getUser() {
-			if (QADDTAPI.getUsername() != null) {
-				user = QADDTAPI.getUsername();
-			}
-			
-			return user;
-		}
-		
-		public String getPass() {
-			if (QADDTAPI.getPassword() != null) {
-				pass = QADDTAPI.getPassword();
-			}
-			
-			return pass;
-		}
-		
-		public ListBoxModel doFillNameItems() {
+		public ListBoxModel doFillNameItems(@QueryParameter("name") final String outer_name) {
 			List<Option> options = new ArrayList();
-		
-			saved_tests = new HashMap<String,String>();
-			saved_tests.put("9fc88d0f08dbd81c5ad3ee4524f800a18b1f5178", "Test #1");
-			saved_tests.put("f6a2a5a3353e62c2ba7563362b179cd2f7efb92f", "Test #2");
-			saved_tests.put("42c8f3198db0c9986b263e023cab7cc6556eabfc", "Test #13");
+			Map<String,String> tmp_tests = QADDTConfig.getTestsMap();
 			
-			for(Map.Entry<String,String> entry : saved_tests.entrySet()) {
+			if (outer_name.length() > 0 && QADDTConfig.getTest(outer_name) == null) {
+				tmp_tests.put(outer_name, "Deprecated Tests: " + outer_name);
+			}
+			
+			for(Map.Entry<String,String> entry : tmp_tests.entrySet()) {
 				String key = entry.getKey();
 				String value = entry.getValue();
 				boolean is_selected = false;
 				
-				if (outer_name == key) {
+				if (outer_name != null && key != null && outer_name.equals(key)) {
 					is_selected = true;
 				}
 				
@@ -123,53 +106,6 @@ public class QADDT extends Builder implements SimpleBuildStep {
 				return FormValidation.error(Messages.QADDT_DescriptorImpl_warnings_wrongSymbol());
 			}
 			return FormValidation.ok();
-		}
-		
-		public FormValidation doTestConnection(@QueryParameter("user") final String user,
-				@QueryParameter("pass") final String pass) throws IOException, ServletException {
-			
-			try {
-				if (user == null || user.length() == 0) {
-					return FormValidation.warning(Messages.QADDT_DescriptorImpl_warning_missingUser());
-				}
-				if (pass == null || pass.length() == 0) {
-					return FormValidation.warning(Messages.QADDT_DescriptorImpl_warning_missingPass());
-				}
-				
-				if (!QADDTAPI.login(user, pass)) {
-					return FormValidation.error(Messages.QADDT_DescriptorImpl_errors_wrongCredentials());
-				}
-				
-				return FormValidation.ok("Success");
-			} catch (Exception e) {
-				return FormValidation.error("Validation error : " + e.getMessage());
-			}
-		}
-
-		@Override
-		public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
-			req.bindParameters(this);
-			
-			formData = formData.getJSONObject("credentials");
-			String user = formData.getString("user");
-			String pass = formData.getString("pass");
-			
-			try {
-				FormValidation check = doTestConnection(user, pass); // Otherwise it throws an error
-				
-				if (check.renderHtml().indexOf("Success") == -1) {
-					throw new FormException(Messages.QADDT_DescriptorImpl_errors_wrongCredentials(), "credentials.user");
-				}
-				
-				this.user = user;
-				this.pass = pass;
-				
-				save();
-			} catch(Exception e) {
-				throw new FormException(Messages.QADDT_DescriptorImpl_errors_wrongCredentials(), "credentials.user");
-			}
-			
-			return super.configure(req, formData);
 		}
 		
 		@Override

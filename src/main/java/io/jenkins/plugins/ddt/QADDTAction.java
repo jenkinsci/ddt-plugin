@@ -21,7 +21,7 @@ public class QADDTAction implements RootAction {
 
 	@Override
 	public String getIconFileName() {
-		return "gear2.png";
+		return "document.png";
 	}
 
 	@Override

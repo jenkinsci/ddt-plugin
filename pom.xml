@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+		xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.jenkins-ci.plugins</groupId>
@@ -9,7 +10,7 @@
 	</parent>
 	<groupId>io.jenkins.plugins</groupId>
 	<artifactId>ddt</artifactId>
-	<version>1.0-SNAPSHOT</version>
+	<version>0.1</version>
 	<packaging>hpi</packaging>
 	<properties>
 		<!-- Baseline Jenkins version you use to build the plugin. Users must have this version or newer to run. -->
@@ -21,13 +22,13 @@
 		  ~ stapler-plugin.version: The Stapler Maven plugin version required by the plugin.
 	 -->
 	</properties>
-	<name>TODO Plugin</name>
-	<description>TODO</description>
+	<name>QA DDT Plugin</name>
+	<description>User-Interface Quality-Analysis Data-Driven-Tests</description>
 	<!-- The default licence for Jenkins OSS Plugins is MIT. Substitute for the applicable one if needed. -->
 	<licenses>
 		<license>
-			<name>MIT License</name>
-			<url>https://opensource.org/licenses/MIT</url>
+			<name>Doorzz, Inc. License</name>
+			<url>https://qa.doorzz.com/license.html</url>
 		</license>
 	</licenses>
 	<dependencies>
@@ -94,18 +95,18 @@
 			<version>20180813</version>
 		</dependency>
 	</dependencies>
-
-	<!-- If you want this to appear on the wiki page:
+	
+	<!-- If you want this to appear on the wiki page: -->
 	<developers>
-	  <developer>
-		<id>bhacker</id>
-		<name>Bob Q. Hacker</name>
-		<email>bhacker@nowhere.net</email>
-	  </developer>
-	</developers> -->
-
+		<developer>
+			<id>evgy</id>
+			<name>Evgeny Kolyakov</name>
+			<email>cto@doorzz.com</email>
+		</developer>
+	</developers>
+	
 	<!-- Assuming you want to host on @jenkinsci:
-	<url>https://wiki.jenkins.io/display/JENKINS/TODO+Plugin</url>
+	<url>https://wiki.jenkins.io/display/JENKINS/QA+DDT+Plugin</url>
 	<scm>
 		<connection>scm:git:git://github.com/jenkinsci/${project.artifactId}-plugin.git</connection>
 		<developerConnection>scm:git:git@github.com:jenkinsci/${project.artifactId}-plugin.git</developerConnection>

@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<io.jenkins.plugins.ddt.QADDT_-DescriptorImpl plugin="ddt@1.0-SNAPSHOT">
+<io.jenkins.plugins.ddt.QADDT_-DescriptorImpl plugin="ddt@0.1">
   <user>test3@test.com</user>
   <pass>123456</pass>
 </io.jenkins.plugins.ddt.QADDT_-DescriptorImpl>
