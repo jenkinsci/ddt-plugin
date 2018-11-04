@@ -39,14 +39,6 @@ public class QADDTAPI {
 		return password;
 	}
 	
-	public static String getUid() {
-		return uid;
-	}
-	
-	public static String getHash() {
-		return hash;
-	}
-	
 	public static boolean login(String user, String pass) {
 		username = user;
 		password = pass;

@@ -73,7 +73,7 @@ public class QADDT extends Builder implements SimpleBuildStep {
 			Map<String,String> tmp_tests = QADDTConfig.getTestsMap();
 			
 			if (outer_name.length() > 0 && QADDTConfig.getTest(outer_name) == null) {
-				tmp_tests.put(outer_name, "Deprecated Tests: " + outer_name);
+				tmp_tests.put(outer_name, "Deprecated Test: " + outer_name);
 			}
 			
 			for(Map.Entry<String,String> entry : tmp_tests.entrySet()) {

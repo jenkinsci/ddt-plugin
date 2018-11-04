@@ -1,10 +1,13 @@
 package io.jenkins.plugins.ddt;
 
 import hudson.Extension;
+import hudson.BulkChange;
 import hudson.util.FormValidation;
 import hudson.model.Descriptor.FormException;
 
 import jenkins.model.GlobalConfiguration;
+import jenkins.model.Jenkins;
+
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.QueryParameter;
 
@@ -23,6 +26,8 @@ import java.io.IOException;
 import javax.servlet.ServletException;
 
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -30,39 +35,31 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 @Extension
 public class QADDTConfig extends GlobalConfiguration {
 	
-	private static String user;
-	private static String pass;
+	private String user;
+	private String pass;
 	
-	private static List<QADDTest> tests;
+	private List<QADDTest> tests;
 	
 	public QADDTConfig() {
-		if (QADDTAPI.getUsername() != null) {
-			user = QADDTAPI.getUsername();
-		}
-		if (QADDTAPI.getPassword() != null) {
-			pass = QADDTAPI.getPassword();
-		}
+		// if (QADDTAPI.getUsername() != null) {
+		// 	user = QADDTAPI.getUsername();
+		// }
+		// if (QADDTAPI.getPassword() != null) {
+		// 	pass = QADDTAPI.getPassword();
+		// }
 		tests = new ArrayList<QADDTest>();
 		load();
 	}
 	
-	@SuppressFBWarnings(value = "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD", justification = "I want to override it every time")
 	public String getUser() {
 		return user;
 	}
 	
-	@SuppressFBWarnings(value = "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD", justification = "I want to override it every time")
 	public String getPass() {
 		return pass;
 	}
 	
-	@SuppressFBWarnings(value = "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD", justification = "I want to override it every time")
 	public List<QADDTest> getTests() {
-		System.out.println(">>>>!!!>>>>");
-		System.out.println("tests: " + tests.toString());
-		System.out.println("tests type: " + tests.getClass());
-		System.out.println("<<<<!!!<<<<");
-		
 		return tests;
 	}
 	
@@ -70,7 +67,7 @@ public class QADDTConfig extends GlobalConfiguration {
 		Map<String,String> tmp_tests = new HashMap<String,String>();
 		tmp_tests.put("", "Choose QA DDT Test");
 		
-		for (QADDTest tmp_test : tests) {
+		for (QADDTest tmp_test : QADDTConfig.get().tests) {
 			tmp_tests.put(tmp_test.getUuid(), tmp_test.getName());
 		}
 		
@@ -78,7 +75,7 @@ public class QADDTConfig extends GlobalConfiguration {
 	}
 	
 	public static QADDTest getTest(String uuid) {
-		for (QADDTest tmp_test : tests) {
+		for (QADDTest tmp_test : QADDTConfig.get().tests) {
 			if (tmp_test.getUuid().equals(uuid)) {
 				return tmp_test;
 			}
@@ -129,26 +126,23 @@ public class QADDTConfig extends GlobalConfiguration {
 			user = cur_user;
 			pass = cur_pass;
 			
+			
+			// try {
+			// 	tests = req.bindJSONToList(QADDTest.class, formData.get("tests"));
+			// 	success = true;
+			// } catch (JSONException e) {
+			// 	System.out.println("Error during tests validation: " + e.getMessage());
+			// }
+			
 			List<QADDTest> tmp_tests = new ArrayList<QADDTest>();
 			try {
-				JSONObject cur_test = formData.getJSONObject("tests");
-				if (!cur_test.toString().equals("null")) {
-					tmp_tests.add(setTest(cur_test));
-				}
+				tmp_tests = setTest(tmp_tests, formData.getJSONObject("tests"));
 			} catch (JSONException e) {
 				JSONArray cur_tests = formData.getJSONArray("tests");
 				for (int i=0; i < cur_tests.size(); ++i) {
-					JSONObject cur_test = cur_tests.getJSONObject(i);
-					if (!cur_test.toString().equals("null")) {
-						tmp_tests.add(setTest(cur_test));
-					}
+					tmp_tests = setTest(tmp_tests, cur_tests.getJSONObject(i));
 				}
 			} finally {
-				
-				System.out.println(">>>>>>>>");
-				System.out.println("tmp_tests: " + tmp_tests.toString());
-				System.out.println("<<<<<<<<");
-				
 				tests = tmp_tests;
 			}
 			
@@ -169,11 +163,35 @@ public class QADDTConfig extends GlobalConfiguration {
 		return Messages.QADDT_DescriptorImpl_DisplayName();
 	}
 	
-	private static QADDTest setTest(JSONObject test) {
-		return new QADDTest(
-			new String(test.getString("name")).replace("[^a-zA-Z0-9 \\-_=\\(\\)\\{\\}\\[\\]<>@\\+.$/\\\\]*", ""),
-			new String(test.getString("uuid")).replace("[^a-zA-Z0-9\\-]*", ""),
-			new String(test.getString("tags")).replace("[^a-zA-Z0-9,]*", "")
-		);
+	private static List<QADDTest> setTest(List<QADDTest>tmp_tests, JSONObject test) {
+		if (!test.toString().equals("null") && test.getString("uuid").length() > 0) {
+			tmp_tests.add(new QADDTest(
+				new String(test.getString("uuid")).replaceAll("[^a-zA-Z0-9\\-]*", ""),
+				new String(test.getString("name")).replaceAll("[^a-zA-Z0-9 \\-_=\\(\\)\\{\\}\\[\\]<>@\\+.$/\\\\]*", ""),
+				new String(test.getString("tags")).replaceAll("[^a-zA-Z0-9,]*", "")
+			));
+		}
+		
+		return tmp_tests;
 	}
+
+	public static QADDTConfig get() {
+		return (QADDTConfig) Jenkins.getInstance().getDescriptorOrDie(QADDTConfig.class);
+	}
+
+	public synchronized void save() {
+		if(BulkChange.contains(this)) {
+			LOGGER.log(Level.WARNING, "Bulked...");
+			return;
+		}
+		
+		try {
+			getConfigFile().write(this);
+			LOGGER.log(Level.WARNING, "Successfully saved " + getConfigFile());
+		} catch (IOException e) {
+			LOGGER.log(Level.WARNING, "Failed to save " + getConfigFile(), e);
+		}
+	}
+
+	private static final Logger LOGGER = Logger.getLogger(QADDTConfig.class.getName());
 }
