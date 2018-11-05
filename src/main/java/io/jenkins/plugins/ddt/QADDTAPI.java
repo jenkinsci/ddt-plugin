@@ -21,10 +21,10 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 
 public class QADDTAPI {
-	// private static final String API_URL = "https://qa-api.doorzz.com/";
-	private static final String API_URL = "http://localhost:8008/";
 	private static final String RESOURCE_URL = "https://qa-resource.doorzz.com/";
 	private static final String RESULTS_URL = "https://s3-eu-west-1.amazonaws.com/tester-qa/uploads/";
+	
+	private String API_URL = null;
 	
 	private String username = null;
 	private String password = null;
@@ -32,9 +32,19 @@ public class QADDTAPI {
 	private String uid = null;
 	private String hash = null;
 	
+	private transient QADDTConfig config;
+	
 	public QADDTAPI() {
-		username = QADDTConfig.get().getUser();
-		password = QADDTConfig.get().getPass();
+		config = QADDTConfig.get();
+		
+		username = config.getUser();
+		password = config.getPass();
+		
+		if (config.isDevMode()) {
+			API_URL = "http://localhost:8008/";
+		} else {
+			API_URL = "https://qa-api.doorzz.com/";
+		}
 	}
 	
 	public synchronized boolean login(String user, String pass) {
@@ -126,7 +136,7 @@ public class QADDTAPI {
 	public synchronized String fetch(String uuid, String filename, String mime) {
 		String is_uid = "";
 		
-		if (uid != null && uid.length() > 0 && uid != "93a72a541c29aed27b59155266b7f04f1a6bd89df23dc434e471f5eb6c818050") {
+		if (uid != null && uid.length() > 0 && !uid.equals("93a72a541c29aed27b59155266b7f04f1a6bd89df23dc434e471f5eb6c818050")) {
 			is_uid = _hash(uid) + "/";
 		}
 		

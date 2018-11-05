@@ -11,13 +11,6 @@ import jenkins.model.Jenkins;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.QueryParameter;
 
-// import hudson.model.AbstractDescribableImpl;
-// import hudson.model.Descriptor;
-// import org.kohsuke.stapler.export.Exported;
-// import org.kohsuke.stapler.export.ExportedBean;
-
-// import java.io.Serializable;
-
 import net.sf.json.JSONObject;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
@@ -28,6 +21,8 @@ import javax.servlet.ServletException;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import java.lang.management.ManagementFactory;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
@@ -40,13 +35,12 @@ public class QADDTConfig extends GlobalConfiguration {
 	
 	private List<QADDTest> tests;
 	
+	private transient boolean DEV_MODE;
+	
 	public QADDTConfig() {
-		// if (QADDTAPI.getUsername() != null) {
-		// 	user = QADDTAPI.getUsername();
-		// }
-		// if (QADDTAPI.getPassword() != null) {
-		// 	pass = QADDTAPI.getPassword();
-		// }
+		// $ export MAVEN_OPTS=-agentlib:jdwp=transport=dt_socket,address=8080,server=y,suspend=n
+		DEV_MODE = ManagementFactory.getRuntimeMXBean().getInputArguments().toString().indexOf("-agentlib:jdwp") > 0;
+		
 		tests = new ArrayList<QADDTest>();
 		load();
 	}
@@ -61,6 +55,10 @@ public class QADDTConfig extends GlobalConfiguration {
 	
 	public List<QADDTest> getTests() {
 		return tests;
+	}
+	
+	public boolean isDevMode() {
+		return DEV_MODE;
 	}
 	
 	public static Map<String,String> getTestsMap() {
