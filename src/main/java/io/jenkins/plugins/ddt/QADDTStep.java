@@ -92,7 +92,7 @@ public class QADDTStep extends Builder implements SimpleBuildStep {
 	// 	assertEquals(true, success);
 	// }
 	
-	private void logic(PrintStream cur_log) throws InterruptedException {
+	private void logic(PrintStream cur_log) throws IOException {
 		QADDTAPI api = new QADDTAPI();
 		
 		cur_log.println("Initializing test: " + parent_uuid + "(" + tags + ")");
@@ -100,19 +100,19 @@ public class QADDTStep extends Builder implements SimpleBuildStep {
 		uuid = api.test(parent_uuid, tags);
 		
 		if (uuid == null) {
-			throw new InterruptedException("Failed initialization!!!");
+			throw new IOException("Failed initialization!!!");
 		}
 		
 		cur_log.println("Waiting for test '" + uuid + "' to start");
 		
 		if (!api.poll(uuid, "tasks.txt", "text/plain", 125)) {
-			throw new InterruptedException("UI test '" + uuid + "' didn't start properly");
+			throw new IOException("UI test '" + uuid + "' didn't start properly");
 		}
 		
 		cur_log.println("Testing...");
 		
 		if (!api.poll(uuid, "report.xml", "text/xml", 17280)) {
-			throw new InterruptedException("UI test '" + uuid + "' failed.");
+			throw new IOException("UI test '" + uuid + "' failed.");
 		}
 		
 		api.logout();

@@ -24,7 +24,7 @@ public class QADDTAction implements RunAction2 {
 
 	@Override
 	public String getIconFileName() {
-		return "document.png";
+		return "search.png";
 	}
 
 	@Override
@@ -51,18 +51,18 @@ public class QADDTAction implements RunAction2 {
 		return run;
 	}
 	
-	// @Extension
-	// public static class QADDTActionFactory extends TransientActionFactory<Run> {
+	@Extension
+	public static class QADDTActionFactory extends TransientActionFactory<Run> {
 
-	// 	@Override
-	// 	public Class<Run> type() {
-	// 		return Run.class; 
-	// 	}
+		@Override
+		public Class<Run> type() {
+			return Run.class; 
+		}
 
-	// 	@Nonnull
-	// 	@Override
-	// 	public Collection<? extends Action> createFor(@Nonnull Run run) {
-	// 		return Collections.singleton(new QADDTAction(run)); 
-	// 	}
-	// }
+		@Nonnull
+		@Override
+		public Collection<? extends Action> createFor(@Nonnull Run run) {
+			return Collections.singleton(new QADDTAction(run)); 
+		}
+	}
 }

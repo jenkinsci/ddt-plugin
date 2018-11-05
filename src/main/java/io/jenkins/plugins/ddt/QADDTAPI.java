@@ -24,7 +24,7 @@ public class QADDTAPI {
 	// private static final String API_URL = "https://qa-api.doorzz.com/";
 	private static final String API_URL = "http://localhost:8008/";
 	private static final String RESOURCE_URL = "https://qa-resource.doorzz.com/";
-	private static final String RESULTS_URL = "https://s3-eu-west-1.amazonaws.com/tester-qa/";
+	private static final String RESULTS_URL = "https://s3-eu-west-1.amazonaws.com/tester-qa/uploads/";
 	
 	private String username = null;
 	private String password = null;
@@ -105,9 +105,11 @@ public class QADDTAPI {
 		String new_test = _request("test", "{" +
 				"\"uid\": \"" + uid + "\"," +
 				"\"hash\": \"" + hash + "\"," +
-				"\"files\": " + tmp_file + "," +
+				"\"files\": " + tmp_file + "," + // This must be left unquoted
 				"\"tags\": \"" + tags + "\"" +
 			"}");
+		
+		// System.out.println(">>> Received data: " + new_test);
 		
 		JSONObject new_test_obj = new JSONObject(new_test);
 		
@@ -116,7 +118,7 @@ public class QADDTAPI {
 		}
 		
 		hash = new_test_obj.getString("hash");
-		uuid = _hash(new_test_obj.getString("tid"));
+		uuid = _hash("TEST:" + new_test_obj.getString("tid")); // TODO: Document this "TEST:" !!!
 		
 		return uuid;
 	}
@@ -131,11 +133,12 @@ public class QADDTAPI {
 		}
 		
 		do {
-			report = _fetch(RESULTS_URL + is_uid + uuid + "/" + filename, mime);
+			report = _fetch(RESULTS_URL + is_uid + uuid + "/results/" + filename + "?_=" + Math.random(), mime);
 			try {
 				Thread.sleep(5000);
 			} catch (Exception e) {
 				System.out.println("Failed sleeping: " + e.getMessage());
+				trials = 0;
 			}
 			--trials;
 		} while (trials > 0 && (report == null || report.length() == 0));
@@ -180,7 +183,6 @@ public class QADDTAPI {
 		try {
 			HttpResponse response = httpClient.execute(request);
 			Integer status_code = response.getStatusLine().getStatusCode();
-			System.out.println("Sent data: " + payload);
 			System.out.println("Requested " + path + " with status code " + status_code);
 			
 			if (status_code != 200) {
@@ -189,7 +191,7 @@ public class QADDTAPI {
 			
 			return _accamulate(response);
 		} catch (Exception e) {
-			// System.out.println("Sent data: " + payload);
+			System.out.println("Sent data: " + payload);
 			System.out.println("Exception while requesting /v1/" + path + " : " + e.getMessage());
 		}
 		
