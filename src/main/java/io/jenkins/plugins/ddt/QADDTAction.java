@@ -5,18 +5,21 @@ import java.util.Collections;
 import javax.annotation.Nonnull;
 
 import hudson.Extension;
-import hudson.model.RootAction;
+import hudson.model.Action;
 import hudson.model.Project;
+
+import hudson.model.Run;
+import jenkins.model.RunAction2;
 
 import jenkins.model.TransientActionFactory;
 
 
-public class QADDTAction implements RootAction {
+public class QADDTAction implements RunAction2 {
 
-	// private Project project;
+	private transient Run run;
 
-	public QADDTAction(/*Project project*/) {
-		// this.project = project;
+	public QADDTAction(Run run) {
+		this.run = run;
 	}
 
 	@Override
@@ -26,7 +29,7 @@ public class QADDTAction implements RootAction {
 
 	@Override
 	public String getDisplayName() {
-		return "QA Data Driven Tests";
+		return "QADDT Results";
 	}
 
 	@Override
@@ -34,18 +37,32 @@ public class QADDTAction implements RootAction {
 		return "ddt";
 	}
 	
-	@Extension
-	public static class QADDTActionFactory extends TransientActionFactory<Project> {
-
-		@Override
-		public Class<Project> type() {
-			return Project.class; 
-		}
-
-		@Nonnull
-		@Override
-		public Collection<? extends RootAction> createFor(@Nonnull Project project) {
-			return Collections.singleton(new QADDTAction()); 
-		}
+	@Override
+	public void onAttached(Run<?, ?> run) {
+		this.run = run; 
 	}
+
+	@Override
+	public void onLoad(Run<?, ?> run) {
+		this.run = run; 
+	}
+
+	public Run getRun() { 
+		return run;
+	}
+	
+	// @Extension
+	// public static class QADDTActionFactory extends TransientActionFactory<Run> {
+
+	// 	@Override
+	// 	public Class<Run> type() {
+	// 		return Run.class; 
+	// 	}
+
+	// 	@Nonnull
+	// 	@Override
+	// 	public Collection<? extends Action> createFor(@Nonnull Run run) {
+	// 		return Collections.singleton(new QADDTAction(run)); 
+	// 	}
+	// }
 }

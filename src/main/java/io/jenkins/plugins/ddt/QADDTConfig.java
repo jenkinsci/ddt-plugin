@@ -95,13 +95,19 @@ public class QADDTConfig extends GlobalConfiguration {
 				return FormValidation.warning(Messages.QADDT_DescriptorImpl_warning_missingPass());
 			}
 			
-			if (!QADDTAPI.login(user, pass)) {
+			QADDTAPI api = new QADDTAPI();
+			if (!api.login(user, pass)) {
 				return FormValidation.error(Messages.QADDT_DescriptorImpl_errors_wrongCredentials());
 			}
+			api.logout();
 			
 			return FormValidation.ok("Success");
 		} catch (Exception e) {
-			return FormValidation.error("Validation error : " + e.getMessage());
+			String msg = e.getMessage();
+			if (msg == null) {
+				return FormValidation.error("Lost connection to the server! Please check you internet connectivity.");
+			}
+			return FormValidation.error("Validation error: " + msg);
 		}
 	}
 
@@ -119,7 +125,7 @@ public class QADDTConfig extends GlobalConfiguration {
 		try {
 			check = doTestConnection(cur_user, cur_pass);
 		} catch(Exception e) {
-			System.out.println("Error during form validation: " + e.getMessage());
+			LOGGER.log(Level.SEVERE, "Error during form validation", e);
 		}
 		
 		if (check != null && check.renderHtml().indexOf("Success") != -1) {
@@ -131,7 +137,7 @@ public class QADDTConfig extends GlobalConfiguration {
 			// 	tests = req.bindJSONToList(QADDTest.class, formData.get("tests"));
 			// 	success = true;
 			// } catch (JSONException e) {
-			// 	System.out.println("Error during tests validation: " + e.getMessage());
+			// 	LOGGER.log(Level.SEVERE, "Error during form validation", e);
 			// }
 			
 			List<QADDTest> tmp_tests = new ArrayList<QADDTest>();
@@ -166,9 +172,9 @@ public class QADDTConfig extends GlobalConfiguration {
 	private static List<QADDTest> setTest(List<QADDTest>tmp_tests, JSONObject test) {
 		if (!test.toString().equals("null") && test.getString("uuid").length() > 0) {
 			tmp_tests.add(new QADDTest(
-				new String(test.getString("uuid")).replaceAll("[^a-zA-Z0-9\\-]*", ""),
-				new String(test.getString("name")).replaceAll("[^a-zA-Z0-9 \\-_=\\(\\)\\{\\}\\[\\]<>@\\+.$/\\\\]*", ""),
-				new String(test.getString("tags")).replaceAll("[^a-zA-Z0-9,]*", "")
+				test.getString("uuid").replaceAll("[^a-zA-Z0-9\\-]*", ""),
+				test.getString("name").replaceAll("[^a-zA-Z0-9 \\-_=\\(\\)\\{\\}\\[\\]<>@\\+.$/\\\\]*", ""),
+				test.getString("tags").replaceAll("[^a-zA-Z0-9,]*", "")
 			));
 		}
 		
@@ -187,7 +193,7 @@ public class QADDTConfig extends GlobalConfiguration {
 		
 		try {
 			getConfigFile().write(this);
-			LOGGER.log(Level.WARNING, "Successfully saved " + getConfigFile());
+			LOGGER.log(Level.INFO, "Successfully saved " + getConfigFile());
 		} catch (IOException e) {
 			LOGGER.log(Level.WARNING, "Failed to save " + getConfigFile(), e);
 		}

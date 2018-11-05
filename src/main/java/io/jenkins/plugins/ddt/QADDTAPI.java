@@ -24,22 +24,20 @@ public class QADDTAPI {
 	// private static final String API_URL = "https://qa-api.doorzz.com/";
 	private static final String API_URL = "http://localhost:8008/";
 	private static final String RESOURCE_URL = "https://qa-resource.doorzz.com/";
+	private static final String RESULTS_URL = "https://s3-eu-west-1.amazonaws.com/tester-qa/";
 	
-	private static String username = null;
-	private static String password = null;
+	private String username = null;
+	private String password = null;
 	
-	private static String uid = null;
-	private static String hash = null;
+	private String uid = null;
+	private String hash = null;
 	
-	public static String getUsername() {
-		return username;
+	public QADDTAPI() {
+		username = QADDTConfig.get().getUser();
+		password = QADDTConfig.get().getPass();
 	}
 	
-	public static String getPassword() {
-		return password;
-	}
-	
-	public static boolean login(String user, String pass) {
+	public synchronized boolean login(String user, String pass) {
 		username = user;
 		password = pass;
 		boolean error = false;
@@ -63,7 +61,7 @@ public class QADDTAPI {
 		return !error;
 	}
 	
-	public static boolean logout() {
+	public synchronized boolean logout() {
 		if (hash == null) {
 			return true;
 		}
@@ -76,16 +74,14 @@ public class QADDTAPI {
 		return false;
 	}
 	
-	public static String test(String uuid, String tags) {
+	public synchronized String test(String uuid, String tags) {
 		// In this context, this is NOT a "clean" test from scratch.
 		// This test must be created beforehand in the "qa-app" !!!
 		
-		if (hash == null) {
-			if (username == null || password == null || !login(username, password)) {
-				return null;
-			}
-			// At this point we should be logged in.
+		if (username == null || password == null || !login(username, password)) {
+			return null;
 		}
+		// At this point we should be logged in.
 		
 		String last_test = _request("restore", "{" +
 				"\"uid\": \"" + uid + "\", " +
@@ -107,9 +103,9 @@ public class QADDTAPI {
 		// TODO: Replace bash ${ENV.foo}
 		
 		String new_test = _request("test", "{" +
-				"\"uid\": \"" + uid + "\", " +
-				"\"hash\": \"" + hash + "\", " +
-				"\"files\": \"" + tmp_file + "\", " +
+				"\"uid\": \"" + uid + "\"," +
+				"\"hash\": \"" + hash + "\"," +
+				"\"files\": " + tmp_file + "," +
 				"\"tags\": \"" + tags + "\"" +
 			"}");
 		
@@ -125,24 +121,55 @@ public class QADDTAPI {
 		return uuid;
 	}
 	
-	private static String _fetch(String path, String mime) {
+	@SuppressFBWarnings(value = "SWL_SLEEP_WITH_LOCK_HELD", justification = "This is a dedicated thread")
+	public synchronized boolean poll(String uuid, String filename, String mime, Integer trials) {
+		String report = null;
+		String is_uid = "";
+		
+		if (uid != null && uid.length() > 0 && uid != "93a72a541c29aed27b59155266b7f04f1a6bd89df23dc434e471f5eb6c818050") {
+			is_uid = _hash(uid) + "/";
+		}
+		
+		do {
+			report = _fetch(RESULTS_URL + is_uid + uuid + "/" + filename, mime);
+			try {
+				Thread.sleep(5000);
+			} catch (Exception e) {
+				System.out.println("Failed sleeping: " + e.getMessage());
+			}
+			--trials;
+		} while (trials > 0 && (report == null || report.length() == 0));
+		
+		if (trials <= 0) {
+			return false;
+		}
+		
+		return true;
+	}
+	
+	private synchronized String _fetch(String path, String mime) {
 		HttpClient httpClient = HttpClientBuilder.create().build();
 		HttpGet request = new HttpGet(path);
 		request.setHeader("Content-type", mime);
 		
 		try {
 			HttpResponse response = httpClient.execute(request);
-			System.out.println("QA DDT API response status code: " + response.getStatusLine().getStatusCode());
+			Integer status_code = response.getStatusLine().getStatusCode();
+			System.out.println("Fetched " + path + " with status code " + status_code);
+			
+			if (status_code != 200) {
+				return null;
+			}
 			
 			return _accamulate(response);
 		} catch (Exception e) {
-			System.out.println("Exception while requesting: " + e.getMessage());
+			System.out.println("Exception while fetching " + path + " : " + e.getMessage());
 		}
 		
 		return null;
 	}
 	
-	private static String _request(String path, String payload) {
+	private synchronized String _request(String path, String payload) {
 		StringEntity entity = new StringEntity(payload, ContentType.APPLICATION_JSON);
 
 		HttpClient httpClient = HttpClientBuilder.create().build();
@@ -152,18 +179,25 @@ public class QADDTAPI {
 		
 		try {
 			HttpResponse response = httpClient.execute(request);
-			System.out.println("QA DDT API response status code: " + response.getStatusLine().getStatusCode());
+			Integer status_code = response.getStatusLine().getStatusCode();
+			System.out.println("Sent data: " + payload);
+			System.out.println("Requested " + path + " with status code " + status_code);
+			
+			if (status_code != 200) {
+				return null;
+			}
 			
 			return _accamulate(response);
 		} catch (Exception e) {
-			System.out.println("Exception while requesting: " + e.getMessage());
+			// System.out.println("Sent data: " + payload);
+			System.out.println("Exception while requesting /v1/" + path + " : " + e.getMessage());
 		}
 		
 		return null;
 	}
 	
 	@SuppressFBWarnings(value = "DM_DEFAULT_ENCODING", justification = "This is in try-catch")
-	private static String _accamulate(HttpResponse response) {
+	private synchronized String _accamulate(HttpResponse response) {
 		try (BufferedReader br = new BufferedReader(new InputStreamReader((response.getEntity().getContent())))) {
 			// Read in all of the post results into a String.
 			Boolean keepGoing = true;
@@ -187,7 +221,7 @@ public class QADDTAPI {
 	}
 	
 	@SuppressFBWarnings(value = "DM_DEFAULT_ENCODING", justification = "This is in try-catch and should return ASCII")
-	private static String _hash(String str) {
+	private synchronized String _hash(String str) {
 		try {
 			MessageDigest digest = MessageDigest.getInstance("SHA-256");
 			byte[] hashed = digest.digest(str.getBytes(StandardCharsets.UTF_8));
