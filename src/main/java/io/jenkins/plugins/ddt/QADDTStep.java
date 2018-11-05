@@ -22,6 +22,7 @@ import org.jenkinsci.Symbol;
 
 import java.io.IOException;
 import java.io.PrintStream;
+import java.io.OutputStream;
 import java.util.*;
 // import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -38,22 +39,16 @@ public class QADDTStep extends Builder implements SimpleBuildStep {
 	
 	private final String parent_uuid;
 	private String tags;
-	private String uuid;
 	
 	@DataBoundConstructor
 	@SuppressFBWarnings(value = "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD", justification = "I want to override it every time and the Descriptor is final")
-	public QADDTStep(String parent_uuid, String tags, String uuid) {
+	public QADDTStep(String parent_uuid, String tags) {
 		this.parent_uuid = parent_uuid;
 		this.tags = tags;
-		this.uuid = uuid;
 	}
 	
 	public String getParent_uuid() {
 		return parent_uuid;
-	}
-	
-	public String getUuid() {
-		return uuid;
 	}
 	
 	public String getTags() {
@@ -92,12 +87,12 @@ public class QADDTStep extends Builder implements SimpleBuildStep {
 	// 	assertEquals(true, success);
 	// }
 	
-	private void logic(PrintStream cur_log) throws IOException {
+	private void logic(PrintStream cur_log, OutputStream os) throws IOException {
 		QADDTAPI api = new QADDTAPI();
 		
 		cur_log.println("Initializing test: " + parent_uuid + "(" + tags + ")");
 		
-		uuid = api.test(parent_uuid, tags);
+		String uuid = api.test(parent_uuid, tags);
 		
 		if (uuid == null) {
 			throw new IOException("Failed initialization!!!");
@@ -105,15 +100,19 @@ public class QADDTStep extends Builder implements SimpleBuildStep {
 		
 		cur_log.println("Waiting for test '" + uuid + "' to start");
 		
-		if (!api.poll(uuid, "tasks.txt", "text/plain", 125)) {
+		if (!api.poll(uuid, "tasks.txt", "text/plain", 121)) { // (5*)(120 + 1) = 605 sec.
 			throw new IOException("UI test '" + uuid + "' didn't start properly");
 		}
 		
 		cur_log.println("Testing...");
 		
-		if (!api.poll(uuid, "report.xml", "text/xml", 17280)) {
+		if (!api.poll(uuid, "report.xml", "text/xml", 17280)) { // (5*)17280 = 86400 sec. /// TODO: Differ by PRO.
 			throw new IOException("UI test '" + uuid + "' failed.");
 		}
+		
+		byte[] report = api.fetch(uuid, "report.xml", "text/xml").getBytes("UTF-8");
+		os.write(report);
+		os.close();
 		
 		api.logout();
 		
@@ -122,18 +121,18 @@ public class QADDTStep extends Builder implements SimpleBuildStep {
 	
 	@Override
 	public void perform(Run<?, ?> run, FilePath workspace, Launcher launcher, TaskListener listener) throws InterruptedException, IOException {
-		logic(listener.getLogger());
+		logic(listener.getLogger(), workspace.child("report.xml").write());
 	}
 	
 	@Extension
 	public static final class DescriptorImpl extends BuildStepDescriptor<Builder> {
 		
-		public ListBoxModel doFillParent_uuidItems(@QueryParameter("parent_uuid") final String outer_name) {
+		public ListBoxModel doFillParent_uuidItems(@QueryParameter("parent_uuid") final String puuid) {
 			List<Option> options = new ArrayList();
 			Map<String,String> tmp_tests = QADDTConfig.getTestsMap();
 			
-			if (outer_name.length() > 0 && QADDTConfig.getTest(outer_name) == null) {
-				tmp_tests.put(outer_name, "Deprecated Test: " + outer_name);
+			if (puuid.length() > 0 && QADDTConfig.getTest(puuid) == null) {
+				tmp_tests.put(puuid, "Deprecated Test: " + puuid);
 			}
 			
 			for(Map.Entry<String,String> entry : tmp_tests.entrySet()) {
@@ -141,7 +140,7 @@ public class QADDTStep extends Builder implements SimpleBuildStep {
 				String value = entry.getValue();
 				boolean is_selected = false;
 				
-				if (key != null && outer_name.equals(key)) {
+				if (key != null && puuid.equals(key)) {
 					is_selected = true;
 				}
 				

@@ -117,28 +117,36 @@ public class QADDTAPI {
 			return null;
 		}
 		
+		uuid = _hash(hash + ":" + new_test_obj.getString("tid")); // TODO: Document this !!!
 		hash = new_test_obj.getString("hash");
-		uuid = _hash("TEST:" + new_test_obj.getString("tid")); // TODO: Document this "TEST:" !!!
 		
 		return uuid;
 	}
 	
-	@SuppressFBWarnings(value = "SWL_SLEEP_WITH_LOCK_HELD", justification = "This is a dedicated thread")
-	public synchronized boolean poll(String uuid, String filename, String mime, Integer trials) {
-		String report = null;
+	public synchronized String fetch(String uuid, String filename, String mime) {
 		String is_uid = "";
 		
 		if (uid != null && uid.length() > 0 && uid != "93a72a541c29aed27b59155266b7f04f1a6bd89df23dc434e471f5eb6c818050") {
 			is_uid = _hash(uid) + "/";
 		}
 		
+		return _fetch(RESULTS_URL + is_uid + uuid + "/results/" + filename + "?_=" + Math.random(), mime);
+	}
+	
+	@SuppressFBWarnings(value = "SWL_SLEEP_WITH_LOCK_HELD", justification = "This is a dedicated thread")
+	public synchronized boolean poll(String uuid, String filename, String mime, Integer trials) {
+		String report = null;
+		
 		do {
-			report = _fetch(RESULTS_URL + is_uid + uuid + "/results/" + filename + "?_=" + Math.random(), mime);
-			try {
-				Thread.sleep(5000);
-			} catch (Exception e) {
-				System.out.println("Failed sleeping: " + e.getMessage());
-				trials = 0;
+			report = fetch(uuid, filename, mime);
+			if (trials > 1) {
+				// Don't wait for the next loop in the last iteration
+				try {
+					Thread.sleep(7000); // ~ 5000 in java ... epic fail...
+				} catch (Exception e) {
+					System.out.println("Failed sleeping: " + e.getMessage());
+					trials = 0;
+				}
 			}
 			--trials;
 		} while (trials > 0 && (report == null || report.length() == 0));
@@ -198,9 +206,8 @@ public class QADDTAPI {
 		return null;
 	}
 	
-	@SuppressFBWarnings(value = "DM_DEFAULT_ENCODING", justification = "This is in try-catch")
 	private synchronized String _accamulate(HttpResponse response) {
-		try (BufferedReader br = new BufferedReader(new InputStreamReader((response.getEntity().getContent())))) {
+		try (BufferedReader br = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"))) {
 			// Read in all of the post results into a String.
 			Boolean keepGoing = true;
 			StringBuffer output = new StringBuffer();
@@ -222,12 +229,11 @@ public class QADDTAPI {
 		return null;
 	}
 	
-	@SuppressFBWarnings(value = "DM_DEFAULT_ENCODING", justification = "This is in try-catch and should return ASCII")
 	private synchronized String _hash(String str) {
 		try {
 			MessageDigest digest = MessageDigest.getInstance("SHA-256");
 			byte[] hashed = digest.digest(str.getBytes(StandardCharsets.UTF_8));
-			return new String(Hex.encode(hashed));
+			return new String(Hex.encode(hashed), "UTF-8");
 		} catch (Exception e) {
 			System.out.println("Exception encrypting hash: " + e.getMessage());
 		}
