@@ -11,14 +11,18 @@ import jenkins.model.Jenkins;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.QueryParameter;
 
-import net.sf.json.JSONObject;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
+import net.sf.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import java.io.IOException;
 import javax.servlet.ServletException;
 
-import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,7 +30,10 @@ import java.lang.management.ManagementFactory;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
-
+/**
+ * This class represents a "config" of the "ddt" package.
+ * @author Evgeny Kolyakov
+ */
 @Extension
 public class QADDTConfig extends GlobalConfiguration {
 	
@@ -37,32 +44,55 @@ public class QADDTConfig extends GlobalConfiguration {
 	
 	private transient boolean DEV_MODE;
 	
+	/**
+	 * The constructor defines the DEV_MODE upon start, initializes the tests field (because it's special) and loads the data.
+	 */
 	public QADDTConfig() {
 		// $ export MAVEN_OPTS=-agentlib:jdwp=transport=dt_socket,address=8080,server=y,suspend=n
 		DEV_MODE = ManagementFactory.getRuntimeMXBean().getInputArguments().toString().indexOf("-agentlib:jdwp") > 0;
 		
-		tests = new ArrayList<QADDTest>();
+		tests = new ArrayList<>();
 		load();
 	}
 	
+	/**
+	 * Getter for the user field.
+	 * @return {String} Returns the username for the QADDTAPI.
+	 */
 	public String getUser() {
 		return user;
 	}
 	
+	/**
+	 * Getter for the pass field.
+	 * @return {String} Returns the password for the QADDTAPI.
+	 */
 	public String getPass() {
 		return pass;
 	}
 	
+	/**
+	 * Getter for the tests field.
+	 * @return {String} Returns the list of all the saved (parent) "tests".
+	 */
 	public List<QADDTest> getTests() {
 		return tests;
 	}
 	
+	/**
+	 * Getter for the DEV_MODE field.
+	 * @return {String} Returns true if Jenkins is running in debug mode, otherwise, false.
+	 */
 	public boolean isDevMode() {
 		return DEV_MODE;
 	}
 	
+	/**
+	 * Get the list of all the "tests" as a key-value pairs.
+	 * @return {Map} Returns the map of (uuid, name) entities.
+	 */
 	public static Map<String,String> getTestsMap() {
-		Map<String,String> tmp_tests = new HashMap<String,String>();
+		Map<String,String> tmp_tests = new HashMap<>();
 		tmp_tests.put("", "Choose QA DDT Test");
 		
 		for (QADDTest tmp_test : QADDTConfig.get().tests) {
@@ -72,6 +102,11 @@ public class QADDTConfig extends GlobalConfiguration {
 		return tmp_tests;
 	}
 	
+	/**
+	 * Get a "test" by UUID.
+	 * @param uuid {String} The UUID to search by.
+	 * @return {QADDTest} Return the "test" if found, otherwise, null.
+	 */
 	public static QADDTest getTest(String uuid) {
 		for (QADDTest tmp_test : QADDTConfig.get().tests) {
 			if (tmp_test.getUuid().equals(uuid)) {
@@ -82,6 +117,14 @@ public class QADDTConfig extends GlobalConfiguration {
 		return null;
 	}
 	
+	/**
+	 * Handler for the "Test Connection" button/feature in Jenkins - Configuration - QADDT (section)
+	 * @param user {String} The username to test.
+	 * @param pass {String} The password to test.
+	 * @return {FormValidation} Returns ok() or error() according to the successful login() into the API.
+	 * @throws IOException This comes from inheritance.
+	 * @throws ServletException This comes from inheritance.
+	 */
 	public FormValidation doTestConnection(@QueryParameter("user") final String user,
 			@QueryParameter("pass") final String pass) throws IOException, ServletException {
 		
@@ -109,6 +152,13 @@ public class QADDTConfig extends GlobalConfiguration {
 		}
 	}
 
+	/**
+	 * Jenkins configuration function responsible for configuring the plugin.
+	 * @param req {StaplerRequest} The request we got.
+	 * @param formData {JSONObject} The object containing the form data.
+	 * @return {boolean} Return true if validation and save() where successful, otherwise, it throws an exception.
+	 * @throws FormException This is needed to stop/cancel saving upon failure during validation.
+	 */
 	@Override
 	@SuppressFBWarnings(value = "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD", justification = "I want to override it every time")
 	public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
@@ -126,19 +176,11 @@ public class QADDTConfig extends GlobalConfiguration {
 			LOGGER.log(Level.SEVERE, "Error during form validation", e);
 		}
 		
-		if (check != null && check.renderHtml().indexOf("Success") != -1) {
+		if (check != null && check.renderHtml().contains("Success")) {
 			user = cur_user;
 			pass = cur_pass;
 			
-			
-			// try {
-			// 	tests = req.bindJSONToList(QADDTest.class, formData.get("tests"));
-			// 	success = true;
-			// } catch (JSONException e) {
-			// 	LOGGER.log(Level.SEVERE, "Error during form validation", e);
-			// }
-			
-			List<QADDTest> tmp_tests = new ArrayList<QADDTest>();
+			List<QADDTest> tmp_tests = new ArrayList<>();
 			try {
 				tmp_tests = setTest(tmp_tests, formData.getJSONObject("tests"));
 			} catch (JSONException e) {
@@ -161,13 +203,14 @@ public class QADDTConfig extends GlobalConfiguration {
 		
 		return super.configure(req, formData);
 	}
-
-	@Override
-	public String getDisplayName() {
-		return Messages.QADDT_DescriptorImpl_DisplayName();
-	}
 	
-	private static List<QADDTest> setTest(List<QADDTest>tmp_tests, JSONObject test) {
+	/**
+	 * This is a helper function for configure() for validating, sanitizing and setting "tests".
+	 * @param tmp_tests {List} The list of "tests" to which to append the new "test" after successful validation.
+	 * @param test {JSONObject} The potential data to check.
+	 * @return {List} Returns the list of the tests we got, but maybe with a new "test".
+	 */
+	private static List<QADDTest> setTest(List<QADDTest> tmp_tests, JSONObject test) {
 		if (!test.toString().equals("null") && test.getString("uuid").length() > 0) {
 			tmp_tests.add(new QADDTest(
 				test.getString("uuid").replaceAll("[^a-zA-Z0-9\\-]*", ""),
@@ -179,10 +222,18 @@ public class QADDTConfig extends GlobalConfiguration {
 		return tmp_tests;
 	}
 
+	/**
+	 * This is a static method to get the "config" instance.
+	 * @return {QADDTConfig} Returns the (one and only) running "config" instance.
+	 */
 	public static QADDTConfig get() {
 		return (QADDTConfig) Jenkins.getInstance().getDescriptorOrDie(QADDTConfig.class);
 	}
 
+	/**
+	 * This is an override for Jenkins save() for adding custom logs.
+	 */
+	@Override
 	public synchronized void save() {
 		if(BulkChange.contains(this)) {
 			LOGGER.log(Level.WARNING, "Bulked...");
@@ -195,6 +246,15 @@ public class QADDTConfig extends GlobalConfiguration {
 		} catch (IOException e) {
 			LOGGER.log(Level.WARNING, "Failed to save " + getConfigFile(), e);
 		}
+	}
+
+	/**
+	 * This is for Jenkins to display the "QADDT" title in the header of the build step in Jenkins - Job - Configuration.
+	 * @return {String} Returns the constant string from the "dictionary" "QADDT".
+	 */
+	@Override
+	public String getDisplayName() {
+		return Messages.QADDT_DescriptorImpl_DisplayName();
 	}
 
 	private static final Logger LOGGER = Logger.getLogger(QADDTConfig.class.getName());

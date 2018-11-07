@@ -8,18 +8,23 @@ import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+
+import java.security.NoSuchAlgorithmException;
 import java.security.MessageDigest;
 import java.nio.charset.StandardCharsets;
 import org.bouncycastle.util.encoders.Hex;
 
-import java.net.*;
-import java.io.*;
-import java.util.*;
-import org.json.*;
+import org.json.JSONObject;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
-
+/**
+ * This is the QA DDT API implementation according to: https://qa.doorzz.com/api.html
+ * @author Evgeny Kolyakov
+ */
 public class QADDTAPI {
 	private static final String RESOURCE_URL = "https://qa-resource.doorzz.com/";
 	private static final String RESULTS_URL = "https://s3-eu-west-1.amazonaws.com/tester-qa/uploads/";
@@ -32,8 +37,11 @@ public class QADDTAPI {
 	private String uid = null;
 	private String hash = null;
 	
-	private transient QADDTConfig config;
+	private static QADDTConfig config;
 	
+	/**
+	 * The constructor gets the credentials from QADDTConfig and sets the API_URL according to the environment.
+	 */
 	public QADDTAPI() {
 		config = QADDTConfig.get();
 		
@@ -47,19 +55,22 @@ public class QADDTAPI {
 		}
 	}
 	
+	/**
+	 * Login to the API (https://qa-api.doorzz.com/v1/) with the given credentials. 
+	 * @param user {String} The username.
+	 * @param pass {String} The password.
+	 * @return {boolean} Returns true for a successful login, otherwise, false.
+	 */
 	public synchronized boolean login(String user, String pass) {
 		username = user;
 		password = pass;
-		boolean error = false;
 		
-		String auth = _request("login", "{" +
+		JSONObject user_obj = _request("login", "{" +
 				"\"email\": \"" + username + "\", " +
 				"\"password\": \"" + _hash(password) + "\"" +
 			"}");
 		
-		JSONObject user_obj = new JSONObject(auth);
-		
-		error = user_obj.getBoolean("error");
+		boolean error = user_obj.getBoolean("error");
 		
 		if (error) {
 			System.out.println("QA DDT API response: Wrong credentials!");
@@ -71,9 +82,13 @@ public class QADDTAPI {
 		return !error;
 	}
 	
+	/**
+	 * Logout from the API (https://qa-api.doorzz.com/v1/) - Revoke the current token.
+	 * @return {boolean} Returns true upon a successful logout, otherwise, false.
+	 */
 	public synchronized boolean logout() {
 		if (hash == null) {
-			return true;
+			return false;
 		}
 		
 		_request("logout", "{" +
@@ -81,9 +96,15 @@ public class QADDTAPI {
 				"\"hash\": \"" + hash + "\"" +
 			"}");
 		
-		return false;
+		return true;
 	}
 	
+	/**
+	 * Run the given test (uuid) again with the given tags.
+	 * @param uuid {String} The parent test's UUID.
+	 * @param tags {String} The tags for the current run/job.
+	 * @return {String} Returns the new UUID upon success, otherwise, null.
+	 */
 	public synchronized String test(String uuid, String tags) {
 		// In this context, this is NOT a "clean" test from scratch.
 		// This test must be created beforehand in the "qa-app" !!!
@@ -93,46 +114,47 @@ public class QADDTAPI {
 		}
 		// At this point we should be logged in.
 		
-		String last_test = _request("restore", "{" +
+		JSONObject last_test = _request("restore", "{" +
 				"\"uid\": \"" + uid + "\", " +
 				"\"hash\": \"" + hash + "\", " +
 				"\"uuid\": \"" + uuid + "\"" +
 			"}");
 		
-		JSONObject last_test_obj = new JSONObject(last_test);
-		
-		if (last_test_obj.getBoolean("error")) {
+		if (last_test.getBoolean("error")) {
 			return null;
 		}
 		
-		hash = last_test_obj.getString("hash");
+		hash = last_test.getString("hash");
 		
-		String filename = last_test_obj.getString("filename");
+		String filename = last_test.getString("filename");
 		String tmp_file = _fetch(RESOURCE_URL + filename, "application/x-yaml");
 		
 		// TODO: Replace bash ${ENV.foo}
 		
-		String new_test = _request("test", "{" +
+		JSONObject new_test = _request("test", "{" +
 				"\"uid\": \"" + uid + "\"," +
 				"\"hash\": \"" + hash + "\"," +
 				"\"files\": " + tmp_file + "," + // This must be left unquoted
 				"\"tags\": \"" + tags + "\"" +
 			"}");
 		
-		// System.out.println(">>> Received data: " + new_test);
-		
-		JSONObject new_test_obj = new JSONObject(new_test);
-		
-		if (new_test_obj.getBoolean("error")) {
+		if (new_test.getBoolean("error")) {
 			return null;
 		}
 		
-		uuid = _hash(hash + ":" + new_test_obj.getString("tid")); // TODO: Document this !!!
-		hash = new_test_obj.getString("hash");
+		uuid = _hash(hash + ":" + new_test.getString("tid"));
+		hash = new_test.getString("hash");
 		
 		return uuid;
 	}
 	
+	/**
+	 * Fetch a result via GET.
+	 * @param uuid {String} The current run's UUID.
+	 * @param filename {String} The file to fetch.
+	 * @param mime {String} The file's mime type.
+	 * @return {String} Returns the fetched content if successful, otherwise, null.
+	 */
 	public synchronized String fetch(String uuid, String filename, String mime) {
 		String is_uid = "";
 		
@@ -143,9 +165,18 @@ public class QADDTAPI {
 		return _fetch(RESULTS_URL + is_uid + uuid + "/results/" + filename + "?_=" + Math.random(), mime);
 	}
 	
+	/**
+	 * Poll for a result (for maximum "trials" times).
+	 * @param uuid {String} The current run's UUID.
+	 * @param filename {String}  The file to fetch.
+	 * @param mime {String} The file's mime type.
+	 * @param trials {Integer} The left number of trials.
+	 * @return {String} Returns the requested content if successful, otherwise, null.
+	 */
 	@SuppressFBWarnings(value = "SWL_SLEEP_WITH_LOCK_HELD", justification = "This is a dedicated thread")
+		@SuppressWarnings("SleepWhileInLoop")
 	public synchronized boolean poll(String uuid, String filename, String mime, Integer trials) {
-		String report = null;
+		String report;
 		
 		do {
 			report = fetch(uuid, filename, mime);
@@ -161,13 +192,16 @@ public class QADDTAPI {
 			--trials;
 		} while (trials > 0 && (report == null || report.length() == 0));
 		
-		if (trials <= 0) {
-			return false;
-		}
-		
-		return true;
+		return trials > 0;
 	}
 	
+	/**
+	 * Fetch a URI via GET.
+	 * Used for getting the results.
+	 * @param path {String} A URI to a file.
+	 * @param mime {String} The file's mime type.
+	 * @return {String} Returns the fetched content if successful, otherwise, null.
+	 */
 	private synchronized String _fetch(String path, String mime) {
 		HttpClient httpClient = HttpClientBuilder.create().build();
 		HttpGet request = new HttpGet(path);
@@ -190,7 +224,13 @@ public class QADDTAPI {
 		return null;
 	}
 	
-	private synchronized String _request(String path, String payload) {
+	/**
+	 * Call a POST request to the API (https://qa-api.doorzz.com/v1/)
+	 * @param path {String} One of the API's endpoints.
+	 * @param payload {String} The data to send.
+	 * @return {JSONObject} Returns the fetched content as a JSONObject if successful, otherwise, null.
+	 */
+	private synchronized JSONObject _request(String path, String payload) {
 		StringEntity entity = new StringEntity(payload, ContentType.APPLICATION_JSON);
 
 		HttpClient httpClient = HttpClientBuilder.create().build();
@@ -207,7 +247,11 @@ public class QADDTAPI {
 				return null;
 			}
 			
-			return _accamulate(response);
+			String ret = _accamulate(response);
+			
+			if (ret != null) {
+				return new JSONObject(ret);
+			}
 		} catch (Exception e) {
 			System.out.println("Sent data: " + payload);
 			System.out.println("Exception while requesting /v1/" + path + " : " + e.getMessage());
@@ -216,6 +260,11 @@ public class QADDTAPI {
 		return null;
 	}
 	
+	/**
+	 * Accamulate the received data in batches.
+	 * @param response {HttpResponse} The HTTP response.
+	 * @return {String} Returns the whole response body.
+	 */
 	private synchronized String _accamulate(HttpResponse response) {
 		try (BufferedReader br = new BufferedReader(new InputStreamReader(response.getEntity().getContent(), "UTF-8"))) {
 			// Read in all of the post results into a String.
@@ -239,6 +288,11 @@ public class QADDTAPI {
 		return null;
 	}
 	
+	/**
+	 * Create a sha256 out of the given string.
+	 * @param str {String} The input data.
+	 * @return {String} Returns the sha256 of the given data.
+	 */
 	private synchronized String _hash(String str) {
 		try {
 			MessageDigest digest = MessageDigest.getInstance("SHA-256");
