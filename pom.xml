@@ -102,6 +102,11 @@
 			<id>evgy</id>
 			<name>Evgeny Kolyakov</name>
 			<email>cto@doorzz.com</email>
+			<roles>
+				<role>developer</role>
+				<role>maintainer</role>
+			</roles>
+			<timezone>IST</timezone>
 		</developer>
 	</developers>
 	
