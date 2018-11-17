@@ -158,7 +158,7 @@ public class QADDTAPI {
 	public synchronized String fetch(String uuid, String filename, String mime) {
 		String is_uid = "";
 		
-		if (uid != null && uid.length() > 0 && !uid.equals("93a72a541c29aed27b59155266b7f04f1a6bd89df23dc434e471f5eb6c818050")) {
+		if (uid != null && uid.length() > 0 && !uid.equals("e89752ff552efe13175389e98218713d86fa2e1b3c327027415814b87c605a43")) {
 			is_uid = _hash(uid) + "/";
 		}
 		
