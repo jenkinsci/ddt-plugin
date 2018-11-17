@@ -27,8 +27,8 @@
 	<!-- The default licence for Jenkins OSS Plugins is MIT. Substitute for the applicable one if needed. -->
 	<licenses>
 		<license>
-			<name>Doorzz, Inc. License</name>
-			<url>https://qa.doorzz.com/license.html</url>
+			<name>MIT</name>
+			<url>http://www.opensource.org/licenses/mit-license.php</url>
 		</license>
 	</licenses>
 	<dependencies>
