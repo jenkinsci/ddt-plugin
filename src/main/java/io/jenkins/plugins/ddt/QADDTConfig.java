@@ -3,6 +3,7 @@ package io.jenkins.plugins.ddt;
 import hudson.Extension;
 import hudson.BulkChange;
 import hudson.util.FormValidation;
+import hudson.util.Secret;
 import hudson.model.Descriptor.FormException;
 
 import jenkins.model.GlobalConfiguration;
@@ -38,7 +39,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 public class QADDTConfig extends GlobalConfiguration {
 	
 	private String user;
-	private String pass;
+	private Secret pass;
 	
 	private List<QADDTest> tests;
 	
@@ -52,6 +53,7 @@ public class QADDTConfig extends GlobalConfiguration {
 		DEV_MODE = ManagementFactory.getRuntimeMXBean().getInputArguments().toString().indexOf("-agentlib:jdwp") > 0;
 		
 		tests = new ArrayList<>();
+		pass = Secret.fromString("");
 		load();
 	}
 	
@@ -65,10 +67,10 @@ public class QADDTConfig extends GlobalConfiguration {
 	
 	/**
 	 * Getter for the pass field.
-	 * @return {String} Returns the password for the QADDTAPI.
+	 * @return {String} Returns the (encrypted) password for the QADDTAPI.
 	 */
 	public String getPass() {
-		return pass;
+		return pass.getEncryptedValue();
 	}
 	
 	/**
@@ -119,25 +121,27 @@ public class QADDTConfig extends GlobalConfiguration {
 	
 	/**
 	 * Handler for the "Test Connection" button/feature in Jenkins - Configuration - QADDT (section)
-	 * @param user {String} The username to test.
-	 * @param pass {String} The password to test.
+	 * @param username {String} The username to test.
+	 * @param password {String} The password to test.
 	 * @return {FormValidation} Returns ok() or error() according to the successful login() into the API.
 	 * @throws IOException This comes from inheritance.
 	 * @throws ServletException This comes from inheritance.
 	 */
-	public FormValidation doTestConnection(@QueryParameter("user") final String user,
-			@QueryParameter("pass") final String pass) throws IOException, ServletException {
+	public FormValidation doTestConnection(@QueryParameter("user") final String username,
+			@QueryParameter("pass") final String password) throws IOException, ServletException {
 		
 		try {
-			if (user == null || user.length() == 0) {
+			if (username == null || username.length() == 0) {
 				return FormValidation.warning(Messages.QADDT_DescriptorImpl_warning_missingUser());
 			}
-			if (pass == null || pass.length() == 0) {
+			if (password == null || password.length() == 0) {
 				return FormValidation.warning(Messages.QADDT_DescriptorImpl_warning_missingPass());
 			}
 			
+			Secret _password = Secret.fromString(password);
+			
 			QADDTAPI api = new QADDTAPI();
-			if (!api.login(user, pass)) {
+			if (!api.login(username, _password.getEncryptedValue())) {
 				return FormValidation.error(Messages.QADDT_DescriptorImpl_errors_wrongCredentials());
 			}
 			api.logout();
@@ -162,8 +166,6 @@ public class QADDTConfig extends GlobalConfiguration {
 	@Override
 	@SuppressFBWarnings(value = "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD", justification = "I want to override it every time")
 	public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
-		req.bindParameters(this);
-		
 		formData = formData.getJSONObject("credentials");
 		String cur_user = formData.getString("user");
 		String cur_pass = formData.getString("pass");
@@ -177,8 +179,12 @@ public class QADDTConfig extends GlobalConfiguration {
 		}
 		
 		if (check != null && check.renderHtml().contains("Success")) {
+			if (!getPass().equals(cur_pass)) {
+				Secret passer = Secret.fromString(cur_pass);
+			}
+			
 			user = cur_user;
-			pass = cur_pass;
+			pass = Secret.fromString(cur_pass);
 			
 			List<QADDTest> tmp_tests = new ArrayList<>();
 			try {

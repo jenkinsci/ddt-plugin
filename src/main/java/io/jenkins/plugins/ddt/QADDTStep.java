@@ -11,9 +11,10 @@ import hudson.model.Run;
 import hudson.model.TaskListener;
 import hudson.tasks.Builder;
 import hudson.tasks.BuildStepDescriptor;
+
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.QueryParameter;
-// import org.kohsuke.stapler.bind.JavaScriptMethod;
+
 import jenkins.tasks.SimpleBuildStep;
 
 import java.util.ArrayList;
@@ -74,28 +75,6 @@ public class QADDTStep extends Builder implements SimpleBuildStep {
 		
 		return tags;
 	}
-	
-	// @JavaScriptMethod
-	// public void setUITags(String tags) {
-	// 	this.tags = tags;
-	// }
-	
-	// @Test
-	// public void test_perform() {
-	// 	boolean success = false;
-	// 	PrintStream cur_log = new PrintStream();
-		
-	// 	try {
-	// 		parent_uuid = "e89752ff552efe13175389e98218713d86fa2e1b3c327027415814b87c605a43";
-	// 		tags = "test";
-	// 		_perform(cur_log);
-	// 		success = true;
-	// 	} catch (Exception e) {
-	// 		cur_log.println("Failed perform!!!");
-	// 	}
-		
-	// 	assertEquals(true, success);
-	// }
 	
 	/**
 	 * This is the main function that actually "re-runs" the given "test" as a new "test".

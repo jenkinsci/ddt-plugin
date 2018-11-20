@@ -1,5 +1,7 @@
 package io.jenkins.plugins.ddt;
 
+import hudson.util.Secret;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
@@ -42,6 +44,7 @@ public class QADDTAPI {
 	/**
 	 * The constructor gets the credentials from QADDTConfig and sets the API_URL according to the environment.
 	 */
+	@SuppressFBWarnings(value = "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD", justification = "The config should get updated upon initialization")
 	public QADDTAPI() {
 		config = QADDTConfig.get();
 		
@@ -67,7 +70,7 @@ public class QADDTAPI {
 		
 		JSONObject user_obj = _request("login", "{" +
 				"\"email\": \"" + username + "\", " +
-				"\"password\": \"" + _hash(password) + "\"" +
+				"\"password\": \"" + _hash(Secret.toString(Secret.fromString(password))) + "\"" +
 			"}");
 		
 		boolean error = user_obj.getBoolean("error");
@@ -95,6 +98,9 @@ public class QADDTAPI {
 				"\"uid\": \"" + uid + "\", " +
 				"\"hash\": \"" + hash + "\"" +
 			"}");
+		
+		uid = null;
+		hash = null;
 		
 		return true;
 	}
@@ -158,7 +164,10 @@ public class QADDTAPI {
 	public synchronized String fetch(String uuid, String filename, String mime) {
 		String is_uid = "";
 		
-		if (uid != null && uid.length() > 0 && !uid.equals("e89752ff552efe13175389e98218713d86fa2e1b3c327027415814b87c605a43")) {
+		if (
+			uid != null && uid.length() > 0 
+			&& !uuid.equals("e89752ff552efe13175389e98218713d86fa2e1b3c327027415814b87c605a43") // sha256(':5bf0525638') # Demo UUID
+		) {
 			is_uid = _hash(uid) + "/";
 		}
 		
@@ -174,7 +183,7 @@ public class QADDTAPI {
 	 * @return {String} Returns the requested content if successful, otherwise, null.
 	 */
 	@SuppressFBWarnings(value = "SWL_SLEEP_WITH_LOCK_HELD", justification = "This is a dedicated thread")
-		@SuppressWarnings("SleepWhileInLoop")
+	@SuppressWarnings("SleepWhileInLoop")
 	public synchronized boolean poll(String uuid, String filename, String mime, Integer trials) {
 		String report;
 		
