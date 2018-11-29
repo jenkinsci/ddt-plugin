@@ -31,13 +31,13 @@ public class QADDTAPI {
 	private static final String RESOURCE_URL = "https://qa-resource.doorzz.com/";
 	private static final String RESULTS_URL = "https://s3-eu-west-1.amazonaws.com/tester-qa/uploads/";
 	
-	private String API_URL = null;
+	private static final String API_URL = "https://qa-api.doorzz.com/";
 	
 	private String username = null;
 	private String password = null;
 	
-	private String uid = null;
-	private String hash = null;
+	private transient String uid = null;
+	private transient String hash = null;
 	
 	private static QADDTConfig config;
 	
@@ -50,12 +50,6 @@ public class QADDTAPI {
 		
 		username = config.getUser();
 		password = config.getPass();
-		
-		if (config.isDevMode()) {
-			API_URL = "http://localhost:8008/";
-		} else {
-			API_URL = "https://qa-api.doorzz.com/";
-		}
 	}
 	
 	/**

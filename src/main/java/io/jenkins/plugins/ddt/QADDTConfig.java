@@ -43,15 +43,10 @@ public class QADDTConfig extends GlobalConfiguration {
 	
 	private List<QADDTest> tests;
 	
-	private transient boolean DEV_MODE;
-	
 	/**
-	 * The constructor defines the DEV_MODE upon start, initializes the tests field (because it's special) and loads the data.
+	 * The constructor initializes the tests field (because it's special) and loads the data.
 	 */
 	public QADDTConfig() {
-		// $ export MAVEN_OPTS=-agentlib:jdwp=transport=dt_socket,address=8080,server=y,suspend=n
-		DEV_MODE = ManagementFactory.getRuntimeMXBean().getInputArguments().toString().indexOf("-agentlib:jdwp") > 0;
-		
 		tests = new ArrayList<>();
 		pass = Secret.fromString("");
 		load();
@@ -79,14 +74,6 @@ public class QADDTConfig extends GlobalConfiguration {
 	 */
 	public List<QADDTest> getTests() {
 		return tests;
-	}
-	
-	/**
-	 * Getter for the DEV_MODE field.
-	 * @return {String} Returns true if Jenkins is running in debug mode, otherwise, false.
-	 */
-	public boolean isDevMode() {
-		return DEV_MODE;
 	}
 	
 	/**
