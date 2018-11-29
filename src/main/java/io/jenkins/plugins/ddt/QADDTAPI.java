@@ -30,7 +30,6 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 public class QADDTAPI {
 	private static final String RESOURCE_URL = "https://qa-resource.doorzz.com/";
 	private static final String RESULTS_URL = "https://s3-eu-west-1.amazonaws.com/tester-qa/uploads/";
-	
 	private static final String API_URL = "https://qa-api.doorzz.com/";
 	
 	private String username = null;
