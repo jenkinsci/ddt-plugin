@@ -159,7 +159,7 @@ public class QADDTAPI {
 		
 		if (
 			uid != null && uid.length() > 0 
-			&& !uuid.equals("e89752ff552efe13175389e98218713d86fa2e1b3c327027415814b87c605a43") // sha256(':5bf0525638') # Demo UUID
+			&& !uuid.equals("9b19170c2cb3f91ed03f4e38ab4c541ac306c4457f5fde20ee4ea3dbb0f26160") // sha256(':5bf0525638') # Demo UUID
 		) {
 			is_uid = _hash(uid) + "/";
 		}
