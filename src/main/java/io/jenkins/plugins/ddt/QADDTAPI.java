@@ -32,6 +32,8 @@ public class QADDTAPI {
 	private static final String RESULTS_URL = "https://s3-eu-west-1.amazonaws.com/tester-qa/uploads/";
 	private static final String API_URL = "https://qa-api.doorzz.com/";
 	
+	private static String DEFAULT_UUID = null;
+	
 	private String username = null;
 	private String password = null;
 	
@@ -73,6 +75,11 @@ public class QADDTAPI {
 		} else {
 			uid = user_obj.getString("uid");
 			hash = user_obj.getString("hash");
+		}
+		
+		if (DEFAULT_UUID == null) {
+			JSONObject defaults_obj = _request("defaults", "{}");
+			DEFAULT_UUID = _get_uuid(defaults_obj.getString("tid"), "");
 		}
 		
 		return !error;
@@ -141,7 +148,7 @@ public class QADDTAPI {
 			return null;
 		}
 		
-		uuid = _hash(hash + ":" + new_test.getString("tid"));
+		uuid = _get_uuid(new_test.getString("tid"), hash);
 		hash = new_test.getString("hash");
 		
 		return uuid;
@@ -157,10 +164,7 @@ public class QADDTAPI {
 	public synchronized String fetch(String uuid, String filename, String mime) {
 		String is_uid = "";
 		
-		if (
-			uid != null && uid.length() > 0 
-			&& !uuid.equals("9b19170c2cb3f91ed03f4e38ab4c541ac306c4457f5fde20ee4ea3dbb0f26160") // sha256(':5c928c513d') # Demo UUID
-		) {
+		if (uid != null && uid.length() > 0 && !uuid.equals(DEFAULT_UUID)) {
 			is_uid = _hash(uid) + "/";
 		}
 		
@@ -195,6 +199,16 @@ public class QADDTAPI {
 		} while (trials > 0 && (report == null || report.length() == 0));
 		
 		return trials > 0;
+	}
+	
+	/**
+	 * Render uuid.
+	 * @param tid {String} The test ID.
+	 * @param hash {String} The test hash.
+	 * @return {String} Returns a generated uuid from the tid & hash.
+	 */
+	private synchronized String _get_uuid(String tid, String hash) {
+		return _hash(hash + ":" + tid);
 	}
 	
 	/**

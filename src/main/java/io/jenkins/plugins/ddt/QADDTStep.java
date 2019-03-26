@@ -125,7 +125,7 @@ public class QADDTStep extends Builder implements SimpleBuildStep {
 	 */
 	@Override
 	public void perform(Run<?, ?> run, FilePath workspace, Launcher launcher, TaskListener listener) throws InterruptedException, IOException {
-		_perform(listener.getLogger(), workspace.child("report.xml").write());
+		_perform(listener.getLogger(), workspace.child("report_" + Math.random() + ".xml").write());
 	}
 	
 	/**
