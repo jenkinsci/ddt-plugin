@@ -43,7 +43,7 @@ public class QADDTAPI {
 	private static QADDTConfig config;
 	
 	/**
-	 * The constructor gets the credentials from QADDTConfig and sets the API_URL according to the environment.
+	 * The constructor gets the credentials from QADDTConfig.
 	 */
 	@SuppressFBWarnings(value = "ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD", justification = "The config should get updated upon initialization")
 	public QADDTAPI() {
@@ -120,6 +120,10 @@ public class QADDTAPI {
 		}
 		// At this point we should be logged in.
 		
+		if (uuid.equals(DEFAULT_UUID)) {
+			return uuid;
+		}
+		
 		JSONObject last_test = _request("restore", "{" +
 				"\"uid\": \"" + uid + "\", " +
 				"\"hash\": \"" + hash + "\", " +
@@ -135,12 +139,37 @@ public class QADDTAPI {
 		String filename = last_test.getString("filename");
 		String tmp_file = _fetch(RESOURCE_URL + filename, "application/x-yaml");
 		
-		// TODO: Replace bash ${ENV.foo}
+		return run(tmp_file, tags);
+	}
+	
+	/**
+	 * Run the given raw test (yaml) with the given tags.
+	 * @param yaml {String} The test data.
+	 * @param tags {String} The tags for the current run/job.
+	 * @return {String} Returns the new UUID upon success, otherwise, null.
+	 */
+	public synchronized String test_raw(String yaml, String tags) {
+		// In this context, this IS a "clean" test from scratch.
 		
+		if (username == null || password == null || !login(username, password)) {
+			return null;
+		}
+		// At this point we should be logged in.
+		
+		return run(new JSONObject().put("test/default.yml", yaml).toString(), tags);
+	}
+	
+	/**
+	 * Run the given raw test with the given tags.
+	 * @param files {String} The test data.
+	 * @param tags {String} The tags for the current run/job.
+	 * @return {String} Returns the new UUID upon success, otherwise, null.
+	 */
+	public synchronized String run(String files, String tags) {
 		JSONObject new_test = _request("test", "{" +
 				"\"uid\": \"" + uid + "\"," +
 				"\"hash\": \"" + hash + "\"," +
-				"\"files\": " + tmp_file + "," + // This must be left unquoted
+				"\"files\": " + files + "," + // This must be left unquoted
 				"\"tags\": \"" + tags + "\"" +
 			"}");
 		
@@ -148,7 +177,7 @@ public class QADDTAPI {
 			return null;
 		}
 		
-		uuid = _get_uuid(new_test.getString("tid"), hash);
+		String uuid = _get_uuid(new_test.getString("tid"), hash);
 		hash = new_test.getString("hash");
 		
 		return uuid;

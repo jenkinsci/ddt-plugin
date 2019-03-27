@@ -109,10 +109,10 @@ public class QADDTest extends AbstractDescribableImpl<QADDTest> implements Seria
 		}
 		QADDTest other = (QADDTest) obj;
 		if (uuid == null) {
-			if (other.uuid != null) {
+			if (other.getUuid() != null) {
 				return false;
 			}
-		} else if (!uuid.equals(other.uuid)) {
+		} else if (!uuid.equals(other.getUuid())) {
 			return false;
 		}
 		return true;
