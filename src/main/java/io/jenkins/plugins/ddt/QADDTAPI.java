@@ -63,10 +63,8 @@ public class QADDTAPI {
 		username = user;
 		password = pass;
 		
-		JSONObject user_obj = _request("login", "{" +
-				"\"email\": \"" + username + "\", " +
-				"\"password\": \"" + _hash(Secret.toString(Secret.fromString(password))) + "\"" +
-			"}");
+		JSONObject user_obj = _request("login", 
+			new JSONObject().put("email", username).put("password", _hash(Secret.toString(Secret.fromString(password)))).toString());
 		
 		boolean error = user_obj.getBoolean("error");
 		
@@ -94,10 +92,8 @@ public class QADDTAPI {
 			return false;
 		}
 		
-		_request("logout", "{" +
-				"\"uid\": \"" + uid + "\", " +
-				"\"hash\": \"" + hash + "\"" +
-			"}");
+		_request("logout", 
+			new JSONObject().put("uid", uid).put("hash", hash).toString());
 		
 		uid = null;
 		hash = null;
@@ -124,11 +120,8 @@ public class QADDTAPI {
 			return uuid;
 		}
 		
-		JSONObject last_test = _request("restore", "{" +
-				"\"uid\": \"" + uid + "\", " +
-				"\"hash\": \"" + hash + "\", " +
-				"\"uuid\": \"" + uuid + "\"" +
-			"}");
+		JSONObject last_test = _request("restore", 
+			new JSONObject().put("uid", uid).put("hash", hash).put("uuid", uuid).toString());
 		
 		if (last_test.getBoolean("error")) {
 			return null;
@@ -166,12 +159,8 @@ public class QADDTAPI {
 	 * @return {String} Returns the new UUID upon success, otherwise, null.
 	 */
 	public synchronized String run(String files, String tags) {
-		JSONObject new_test = _request("test", "{" +
-				"\"uid\": \"" + uid + "\"," +
-				"\"hash\": \"" + hash + "\"," +
-				"\"files\": " + files + "," + // This must be left unquoted
-				"\"tags\": \"" + tags + "\"" +
-			"}");
+		JSONObject new_test = _request("test", 
+			new JSONObject().put("uid", uid).put("hash", hash).put("files", new JSONObject(files)).put("tags", tags).toString());
 		
 		if (new_test.getBoolean("error")) {
 			return null;
