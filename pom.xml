@@ -23,7 +23,7 @@
 	 -->
 	</properties>
 	<name>QA DDT Plugin</name>
-	<description>User-Interface Quality-Analysis Data-Driven-Tests</description>
+	<description>User-Interface Quality-Assurance Data-Driven-Tests</description>
 	<licenses>
 		<license>
 			<name>MIT</name>
