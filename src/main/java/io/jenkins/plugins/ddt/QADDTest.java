@@ -24,7 +24,7 @@ public class QADDTest extends AbstractDescribableImpl<QADDTest> implements Seria
 	
 	/**
 	 * This is the serializable constructor.
-	 * @param uuid {String} The test's UUID (copied from https://qa-app.doorzz.com).
+	 * @param uuid {String} The test's UUID (copied from https://app.uiqa.io).
 	 * @param name {String} The local title for the test.
 	 * @param tags {String} A list of tags separated by comas (,)
 	 */

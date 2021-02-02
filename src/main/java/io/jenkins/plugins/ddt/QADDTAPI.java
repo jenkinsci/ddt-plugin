@@ -24,13 +24,13 @@ import org.json.JSONObject;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
- * This is the QA DDT API implementation according to: https://qa.doorzz.com/api.html
+ * This is the QA DDT API implementation according to: https://uiqa.io/api.html
  * @author Evgeny Kolyakov
  */
 public class QADDTAPI {
 	private static final String RESOURCE_URL = "https://qa-resource.doorzz.com/";
 	private static final String RESULTS_URL = "https://s3-eu-west-1.amazonaws.com/tester-qa/uploads/";
-	private static final String API_URL = "https://qa-api.doorzz.com/";
+	private static final String API_URL = "https://api.uiqa.io/";
 	
 	private static String DEFAULT_UUID = null;
 	
@@ -54,7 +54,7 @@ public class QADDTAPI {
 	}
 	
 	/**
-	 * Login to the API (https://qa-api.doorzz.com/v1/) with the given credentials. 
+	 * Login to the API (https://api.uiqa.io/v1/) with the given credentials. 
 	 * @param user {String} The username.
 	 * @param pass {String} The password.
 	 * @return {boolean} Returns true for a successful login, otherwise, false.
@@ -84,7 +84,7 @@ public class QADDTAPI {
 	}
 	
 	/**
-	 * Logout from the API (https://qa-api.doorzz.com/v1/) - Revoke the current token.
+	 * Logout from the API (https://api.uiqa.io/v1/) - Revoke the current token.
 	 * @return {boolean} Returns true upon a successful logout, otherwise, false.
 	 */
 	public synchronized boolean logout() {
@@ -259,7 +259,7 @@ public class QADDTAPI {
 	}
 	
 	/**
-	 * Call a POST request to the API (https://qa-api.doorzz.com/v1/)
+	 * Call a POST request to the API (https://api.uiqa.io/v1/)
 	 * @param path {String} One of the API's endpoints.
 	 * @param payload {String} The data to send.
 	 * @return {JSONObject} Returns the fetched content as a JSONObject if successful, otherwise, null.
