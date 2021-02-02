@@ -1,10 +1,5 @@
 # User-Interface Quality-Assurance Data-Driven-Tests Plugin
 
-| Plugin Information                                                                           |
-|----------------------------------------------------------------------------------------------|
-| View DDT [on the plugin site](https://github.com/jenkinsci/ddt-plugin) for more information. |
-
-  
 
 This plugins allows to define your "tests"
 (from [https://app.uiqa.io](https://app.uiqa.io/))   
@@ -17,48 +12,37 @@ This job will re-run this test and retrieve the JUnit report.
 -   Install the plugin
 -   In *Manage Jenkins \> Configure System* go to ***QA DDT***  
     ***  
-    ***
-    -   Set **Username & Password:  
-        **  
-        **![](https://wiki.jenkins.io/download/attachments/165580103/QA-DDT-Credentials.png?version=1&modificationDate=1544032403000&api=v2){width="768"
-        height="150"}**  
-          
-        **  
-        **
-    -   Select** ***Add*** **and set the**  
-        **  
-        ![](https://wiki.jenkins.io/download/attachments/165580103/QA-DDT-Tests.png?version=1&modificationDate=1544032583000&api=v2){width="768"
-        height="593"}  
+    -   Set **Username & Password**:
+        
+        ![](https://wiki.jenkins.io/download/attachments/165580103/QA-DDT-Credentials.png?version=1&modificationDate=1544032403000&api=v2)
+        
+    -   **Add tests**:
+       
+        ![](https://wiki.jenkins.io/download/attachments/165580103/QA-DDT-Tests.png?version=1&modificationDate=1544032583000&api=v2)
+Brief description of the named fields:
 
-        Brief description of the named fields:
-
-        -   ***UUID** *- The UUID of the test you would like to run
+        -   ***UUID***- The UUID of the test you would like to run
             later on from the [QA DDT App](https://app.uiqa.io/)
-            (just copy-paste the desired UUID).***  
-            ***
+            (just copy-paste the desired UUID).  
         -   ***Name*** - A name describing the test ( Mandatory! )
-        -   ***Tags ***- Additional tags for the test (see, ["tags" in
+        -   ***Tags***- Additional tags for the test (see, ["tags" in
             our official
-            docs](https://github.com/freaker2k7/ui-data-driven-tests/blob/master/3-Advanced.md#tags---a-list-of-tags-of-the-task))  
-              
+            docs](https://github.com/freaker2k7/ui-data-driven-tests/blob/master/3-Advanced.md#tags---a-list-of-tags-of-the-task))
 
 &nbsp;
 
 -   In *Jenkins \> {job name} \>* Configure \> ***Build***  
     ***  
-    ***
     -   Choose a test from the list of tests you set in the Jenkins
         Configuration  
           
-        ![](https://wiki.jenkins.io/download/attachments/165580103/QA-DDT-Build.png?version=1&modificationDate=1544033426000&api=v2){width="768"
-        height="214"}  
+        ![](https://wiki.jenkins.io/download/attachments/165580103/QA-DDT-Build.png?version=1&modificationDate=1544033426000&api=v2)
 
         Brief description of the named fields:
 
         -   ***Name*** - The name of the test from the list.
         -   ***Tags (Advanced)*** - A list of tags (separated by comas
-            without spaces) to override the test's tags for this job.  
-              
+            without spaces) to override the test's tags for this job.
 
 -   (*Optional*) In *Jenkins \> {job name} \>* Configure \> **Post-build
     Actions**  
@@ -66,8 +50,7 @@ This job will re-run this test and retrieve the JUnit report.
     -   Add "report\*.xml" to the **Test report XMLs** field in order to
         get the JUnit report of the DDT test.  
           
-        ![](https://wiki.jenkins.io/download/attachments/165580103/Screen%20Shot%202019-03-26%20at%208.45.47%20PM.png?version=1&modificationDate=1553625959000&api=v2){width="768"}  
-          
+        ![](https://wiki.jenkins.io/download/attachments/165580103/Screen%20Shot%202019-03-26%20at%208.45.47%20PM.png?version=1&modificationDate=1553625959000&api=v2)
 
 &nbsp;
 
@@ -93,13 +76,12 @@ This job will re-run this test and retrieve the JUnit report.
         bfb4086... is the original test UUID from Jenkins'
         Configuration.  
         57b61ec... is a new UUID from this specific run.
+***
 
-### ** **
-
-### **Changelog**
+## **Changelog**
 
  
 
-## Release 1.0 (2021-01-31)
+### Release 1.0 (2018-11-29)
 
 -   Initial release
