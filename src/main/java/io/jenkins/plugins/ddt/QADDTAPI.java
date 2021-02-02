@@ -28,7 +28,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  * @author Evgeny Kolyakov
  */
 public class QADDTAPI {
-	private static final String RESOURCE_URL = "https://qa-resource.doorzz.com/";
+	private static final String RESOURCE_URL = "https://resource.uiqa.io/";
 	private static final String RESULTS_URL = "https://s3-eu-west-1.amazonaws.com/tester-ui-qa/uploads/";
 	private static final String API_URL = "https://api.uiqa.io/";
 	
