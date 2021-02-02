@@ -70,9 +70,6 @@ Brief description of the named fields:
         Finished: SUCCESS
         ```
 
-        ``` console-output
-        ```
-
         bfb4086... is the original test UUID from Jenkins'
         Configuration.  
         57b61ec... is a new UUID from this specific run.
