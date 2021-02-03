@@ -69,8 +69,9 @@ Brief description of the named fields:
         Finished: SUCCESS
         ```
 
-        `bfb4086...` is the original test UUID from Jenkins' Configuration.
+        `bfb4086...` is the original test UUID from Jenkins' Configuration.<br>
         `57b61ec...` is a new UUID from this specific run.
+
 ***
 
 ## **Changelog**
