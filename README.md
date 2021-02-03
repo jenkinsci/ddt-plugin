@@ -77,6 +77,6 @@ Brief description of the named fields:
 
  
 
-### Release 1.0 (2018-11-29)
+### Release 1.0 (2021-02-01)
 
 -   Initial release
